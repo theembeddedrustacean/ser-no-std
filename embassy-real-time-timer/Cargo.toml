@@ -1,0 +1,38 @@
+[package]
+name = "embassy-real-time-timer"
+version = "0.1.0"
+authors = ["The Embedded Rustacean <166909466+theembeddedrustacean@users.noreply.github.com>"]
+edition = "2021"
+license = "MIT OR Apache-2.0"
+
+[dependencies]
+esp-backtrace = { version = "0.11.0", features = [
+    "esp32c3",
+    "exception-handler",
+    "panic-handler",
+    "println",
+] }
+esp-hal = { version = "0.17.0", features = [ "esp32c3", "async", "embassy", "embassy-time-timg0", "embassy-executor-interrupt","embassy-executor-thread"] }
+esp-println = { version = "0.9.0", features = ["esp32c3", "log"] }
+log = { version = "0.4.20" }
+embassy-executor    = { version = "0.5.0", features = ["nightly",  "arch-riscv32", "integrated-timers"]}
+embassy-sync        = "0.5.0"
+embassy-time        = "0.3.0"
+embedded-hal-async = "1.0.0"
+embedded-io-async = "0.6.1"
+portable-atomic = "1.6.0"
+
+
+[profile.dev]
+# Rust debug is too slow. 
+# For debug builds always builds with some optimization
+opt-level = "s"
+
+[profile.release]
+codegen-units = 1 # LLVM can perform better optimizations using a single thread
+debug = 2
+debug-assertions = false
+incremental = false
+lto = 'fat'
+opt-level = 's'
+overflow-checks = false

@@ -1,0 +1,48 @@
+{
+    "version": 1,
+    "editor": "wokwi",
+    "author": "The Embedded Rustacean <166909466+theembeddedrustacean@users.noreply.github.com>",
+      "parts": [
+        {
+          "type": "board-esp32-c3-devkitm-1",
+          "id": "esp",
+          "top": -155.19,
+          "left": -73.03,
+          "attrs": { "builder": "rust-nostd-esp" }
+        },
+        {
+          "type": "wokwi-led",
+          "id": "led1",
+          "top": -82.5,
+          "left": 141.55,
+          "attrs": { "color": "red", "flip": "1" }
+        },
+        {
+          "type": "wokwi-resistor",
+          "id": "r1",
+          "top": -45.62,
+          "left": 47.67,
+          "attrs": { "value": "1000" }
+        },
+        {
+          "type": "wokwi-pushbutton",
+          "id": "btn1",
+          "top": -71.27,
+          "left": -235.6,
+          "attrs": { "color": "green", "bounce": "1" }
+        }
+      ],
+      "connections": [
+        [ "esp:TX", "$serialMonitor:RX", "", [] ],
+        [ "esp:RX", "$serialMonitor:TX", "", [] ],
+        [ "esp:4", "r1:1", "green", [ "v0" ] ],
+        [ "led1:C", "esp:GND.6", "black", [ "v0" ] ],
+        [ "r1:2", "led1:A", "green", [ "v0" ] ],
+        [ "btn1:1.r", "esp:0", "green", [ "v0" ] ],
+        [ "btn1:2.r", "esp:GND.5", "black", [ "h11.77", "v36" ] ]
+      ],
+    "serialMonitor": {
+        "display": "terminal",
+        "convertEol": true
+    }
+}

@@ -1,0 +1,40 @@
+{
+    "version": 1,
+    "editor": "wokwi",
+    "author": "The Embedded Rustacean <166909466+theembeddedrustacean@users.noreply.github.com>",
+    "parts": [
+        {
+          "type": "board-esp32-c3-devkitm-1",
+          "id": "esp",
+          "top": 0.59,
+          "left": 0.67,
+          "attrs": { "flashSize": "16" }
+        },
+        {
+          "type": "wokwi-led",
+          "id": "led1",
+          "top": -32.4,
+          "left": -92.2,
+          "attrs": { "color": "red" }
+        },
+        {
+          "type": "wokwi-resistor",
+          "id": "r1",
+          "top": 52.8,
+          "left": -96.55,
+          "rotate": 90,
+          "attrs": { "value": "100" }
+        }
+      ],
+      "connections": [
+        [ "esp:TX", "$serialMonitor:RX", "", [] ],
+        [ "esp:RX", "$serialMonitor:TX", "", [] ],
+        [ "r1:2", "esp:0", "green", [ "v0" ] ],
+        [ "led1:A", "r1:1", "green", [ "v0" ] ],
+        [ "led1:C", "esp:GND.5", "black", [ "v0" ] ]
+      ],
+    "serialMonitor": {
+        "display": "terminal",
+        "convertEol": true
+    }
+}

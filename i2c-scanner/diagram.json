@@ -1,0 +1,45 @@
+{
+    "version": 1,
+    "editor": "wokwi",
+    "author": "The Embedded Rustacean <166909466+theembeddedrustacean@users.noreply.github.com>",
+    "parts": [
+        {
+          "type": "board-esp32-c3-devkitm-1",
+          "id": "esp",
+          "top": -9.9,
+          "left": -22.98,
+          "attrs": { "builder": "rust-nostd-esp" }
+        },
+        {
+          "type": "board-ssd1306",
+          "id": "oled1",
+          "top": 166.34,
+          "left": -345.37,
+          "attrs": { "i2cAddress": "0x3c" }
+        },
+        {
+          "type": "wokwi-ds1307",
+          "id": "rtc1",
+          "top": -110.3,
+          "left": -290.8,
+          "rotate": 270,
+          "attrs": {}
+        }
+      ],
+      "connections": [
+        [ "esp:TX", "$serialMonitor:RX", "", [] ],
+        [ "esp:RX", "$serialMonitor:TX", "", [] ],
+        [ "oled1:SCL", "esp:2", "orange", [ "v0" ] ],
+        [ "rtc1:SCL", "esp:2", "orange", [ "v0" ] ],
+        [ "oled1:VCC", "esp:5V.2", "red", [ "v0" ] ],
+        [ "oled1:GND", "esp:GND.5", "black", [ "v0" ] ],
+        [ "rtc1:GND", "esp:GND.5", "black", [ "v0" ] ],
+        [ "rtc1:5V", "esp:5V.2", "red", [ "v0" ] ],
+        [ "oled1:SDA", "esp:3", "green", [ "v0" ] ],
+        [ "rtc1:SDA", "esp:3", "green", [ "v0" ] ]
+      ],
+    "serialMonitor": {
+        "display": "terminal",
+        "convertEol": true
+    }
+}
