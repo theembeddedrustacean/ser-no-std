@@ -8,7 +8,9 @@ Programming Serial Communication - I2C Real-time Clock Application Example
 
 use esp_backtrace as _;
 use esp_hal::{
-    clock::ClockControl, delay::Delay, gpio::IO, i2c::I2C, peripherals::Peripherals, prelude::*,
+    clock::ClockControl, delay::Delay, gpio::Io, i2c::I2C,
+    peripherals::Peripherals, prelude::*,
+    system::SystemControl,
 };
 use esp_println::println;
 use nobcd::BcdNumber;
@@ -18,12 +20,13 @@ const DS1307_ADDR: u8 = 0x68;
 #[entry]
 fn main() -> ! {
     let peripherals = Peripherals::take();
-    let system = peripherals.SYSTEM.split();
+    let system = SystemControl::new(peripherals.SYSTEM);
 
-    let clocks = ClockControl::max(system.clock_control).freeze();
+    let clocks =
+        ClockControl::max(system.clock_control).freeze();
     let delay = Delay::new(&clocks);
 
-    let io = IO::new(peripherals.GPIO, peripherals.IO_MUX);
+    let io = Io::new(peripherals.GPIO, peripherals.IO_MUX);
 
     let mut ds1307 = I2C::new(
         peripherals.I2C0,
@@ -31,7 +34,6 @@ fn main() -> ! {
         io.pins.gpio2,
         100u32.kHz(),
         &clocks,
-        None,
     );
 
     #[repr(u8)]
@@ -76,37 +78,50 @@ fn main() -> ! {
 
     // Set Time
     // Set Seconds -> Also Activates Oscillator
-    let secs: [u8; 1] = BcdNumber::new(start_dt.sec).unwrap().bcd_bytes();
+    let secs: [u8; 1] =
+        BcdNumber::new(start_dt.sec).unwrap().bcd_bytes();
     ds1307
-        .write(DS1307_ADDR, &[DS1307::Seconds as u8, secs[0]])
+        .write(
+            DS1307_ADDR,
+            &[DS1307::Seconds as u8, secs[0]],
+        )
         .unwrap();
     // Set Minutes
-    let mins: [u8; 1] = BcdNumber::new(start_dt.min).unwrap().bcd_bytes();
+    let mins: [u8; 1] =
+        BcdNumber::new(start_dt.min).unwrap().bcd_bytes();
     ds1307
-        .write(DS1307_ADDR, &[DS1307::Minutes as u8, mins[0]])
+        .write(
+            DS1307_ADDR,
+            &[DS1307::Minutes as u8, mins[0]],
+        )
         .unwrap();
     // Set Hours
-    let hrs: [u8; 1] = BcdNumber::new(start_dt.hrs).unwrap().bcd_bytes();
+    let hrs: [u8; 1] =
+        BcdNumber::new(start_dt.hrs).unwrap().bcd_bytes();
     ds1307
         .write(DS1307_ADDR, &[DS1307::Hours as u8, hrs[0]])
         .unwrap();
     // Set Day of Week
-    let dow: [u8; 1] = BcdNumber::new(start_dt.day).unwrap().bcd_bytes();
+    let dow: [u8; 1] =
+        BcdNumber::new(start_dt.day).unwrap().bcd_bytes();
     ds1307
         .write(DS1307_ADDR, &[DS1307::Day as u8, dow[0]])
         .unwrap();
     // Set Day of Month
-    let dom: [u8; 1] = BcdNumber::new(start_dt.date).unwrap().bcd_bytes();
+    let dom: [u8; 1] =
+        BcdNumber::new(start_dt.date).unwrap().bcd_bytes();
     ds1307
         .write(DS1307_ADDR, &[DS1307::Date as u8, dom[0]])
         .unwrap();
     // Set Month
-    let mnth: [u8; 1] = BcdNumber::new(start_dt.mnth).unwrap().bcd_bytes();
+    let mnth: [u8; 1] =
+        BcdNumber::new(start_dt.mnth).unwrap().bcd_bytes();
     ds1307
         .write(DS1307_ADDR, &[DS1307::Month as u8, mnth[0]])
         .unwrap();
     // Set Year
-    let yr: [u8; 1] = BcdNumber::new(start_dt.yr).unwrap().bcd_bytes();
+    let yr: [u8; 1] =
+        BcdNumber::new(start_dt.yr).unwrap().bcd_bytes();
     ds1307
         .write(DS1307_ADDR, &[DS1307::Year as u8, yr[0]])
         .unwrap();
@@ -121,17 +136,30 @@ fn main() -> ! {
 
         println!("{:?}", data);
 
-        let secs = BcdNumber::from_bcd_bytes([data[0] & 0x7f])
+        let secs =
+            BcdNumber::from_bcd_bytes([data[0] & 0x7f])
+                .unwrap()
+                .value::<u8>();
+        let mins = BcdNumber::from_bcd_bytes([data[1]])
             .unwrap()
             .value::<u8>();
-        let mins = BcdNumber::from_bcd_bytes([data[1]]).unwrap().value::<u8>();
-        let hrs = BcdNumber::from_bcd_bytes([data[2] & 0x3f])
+        let hrs =
+            BcdNumber::from_bcd_bytes([data[2] & 0x3f])
+                .unwrap()
+                .value::<u8>();
+        let dom = BcdNumber::from_bcd_bytes([data[4]])
             .unwrap()
             .value::<u8>();
-        let dom = BcdNumber::from_bcd_bytes([data[4]]).unwrap().value::<u8>();
-        let mnth = BcdNumber::from_bcd_bytes([data[5]]).unwrap().value::<u8>();
-        let yr = BcdNumber::from_bcd_bytes([data[6]]).unwrap().value::<u8>();
-        let dow = match BcdNumber::from_bcd_bytes([data[3]]).unwrap().value::<u8>() {
+        let mnth = BcdNumber::from_bcd_bytes([data[5]])
+            .unwrap()
+            .value::<u8>();
+        let yr = BcdNumber::from_bcd_bytes([data[6]])
+            .unwrap()
+            .value::<u8>();
+        let dow = match BcdNumber::from_bcd_bytes([data[3]])
+            .unwrap()
+            .value::<u8>()
+        {
             1 => "Sunday",
             2 => "Monday",
             3 => "Tuesday",

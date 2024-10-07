@@ -8,12 +8,13 @@ Programming ADCs - Voltmeter Application Example
 
 use esp_backtrace as _;
 use esp_hal::{
-    analog::adc::{AdcConfig, Attenuation, ADC},
+    analog::adc::{Adc, AdcConfig, Attenuation},
     clock::ClockControl,
     delay::Delay,
-    gpio::IO,
+    gpio::Io,
     peripherals::Peripherals,
     prelude::*,
+    system::SystemControl,
 };
 use esp_println::println;
 
@@ -21,35 +22,40 @@ use esp_println::println;
 fn main() -> ! {
     // Take Peripherals & Configure Clocks
     let peripherals = Peripherals::take();
-    let system = peripherals.SYSTEM.split();
+    let system = SystemControl::new(peripherals.SYSTEM);
 
-    let clocks = ClockControl::max(system.clock_control).freeze();
+    let clocks =
+        ClockControl::max(system.clock_control).freeze();
     let delay = Delay::new(&clocks);
 
     // Instantiate and Create Handle for IO
-    let io = IO::new(peripherals.GPIO, peripherals.IO_MUX);
-
-    // Configure Pin as Analog
-    let analog_pin = io.pins.gpio0.into_analog();
+    let io = Io::new(peripherals.GPIO, peripherals.IO_MUX);
 
     // Create handle for ADC configuration parameters
     let mut adc_config = AdcConfig::new();
 
     // Configure ADC channel
-    let mut adc_pin = adc_config.enable_pin(analog_pin, Attenuation::Attenuation11dB);
+    let mut adc_pin = adc_config.enable_pin(
+        io.pins.gpio0,
+        Attenuation::Attenuation11dB,
+    );
 
     // Create ADC Driver
-    let mut adc = ADC::new(peripherals.ADC1, adc_config);
+    let mut adc = Adc::new(peripherals.ADC1, adc_config);
 
     loop {
         // Get ADC Reading
-        let sample: u16 = adc.read_oneshot(&mut adc_pin).unwrap();
+        let sample: u16 =
+            adc.read_oneshot(&mut adc_pin).unwrap();
 
         // Convert to Voltage
         let voltage: u32 = sample as u32 * 3300 / 4095;
 
         // Print the temperature output
-        println!("Raw Reading: {}, Voltage Reading: {}mV", sample, voltage);
+        println!(
+            "Raw Reading: {}, Voltage Reading: {}mV",
+            sample, voltage
+        );
 
         // Wait half a second before next sample
         delay.delay_millis(500_u32);

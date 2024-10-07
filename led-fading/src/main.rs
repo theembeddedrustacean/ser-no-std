@@ -10,32 +10,37 @@ use esp_backtrace as _;
 use esp_hal::{
     clock::ClockControl,
     delay::Delay,
-    gpio::IO,
-    ledc::{channel, timer, LSGlobalClkSource, LowSpeed, LEDC},
+    gpio::Io,
+    ledc::{
+        channel, timer, LSGlobalClkSource, Ledc, LowSpeed,
+    },
     peripherals::Peripherals,
     prelude::*,
+    system::SystemControl,
 };
 
 #[entry]
 fn main() -> ! {
     // Take Peripherals and Configure System Clocks
     let peripherals = Peripherals::take();
-    let system = peripherals.SYSTEM.split();
-    let clocks = ClockControl::max(system.clock_control).freeze();
+    let system = SystemControl::new(peripherals.SYSTEM);
+    let clocks =
+        ClockControl::max(system.clock_control).freeze();
 
     // Instantiate delay abstraction
     let delay = Delay::new(&clocks);
 
     // Configure GPIO Pin to be used for LEDC peripheral
-    let io = IO::new(peripherals.GPIO, peripherals.IO_MUX);
+    let io = Io::new(peripherals.GPIO, peripherals.IO_MUX);
     let led = io.pins.gpio7;
 
     // Create LEDC instance with low speed global clock
-    let mut ledc = LEDC::new(peripherals.LEDC, &clocks);
+    let mut ledc = Ledc::new(peripherals.LEDC, &clocks);
     ledc.set_global_slow_clock(LSGlobalClkSource::APBClk);
 
     // Configure LEDC timer
-    let mut timer = ledc.get_timer::<LowSpeed>(timer::Number::Timer0);
+    let mut timer =
+        ledc.get_timer::<LowSpeed>(timer::Number::Timer0);
     timer
         .configure(timer::config::Config {
             duty: timer::config::Duty::Duty14Bit,
@@ -45,12 +50,14 @@ fn main() -> ! {
         .unwrap();
 
     // Configure LEDC Channel Attaching Timer and Pin
-    let mut channel = ledc.get_channel(channel::Number::Channel0, led);
+    let mut channel =
+        ledc.get_channel(channel::Number::Channel0, led);
     channel
         .configure(channel::config::Config {
             timer: &timer,
             duty_pct: 0,
-            pin_config: channel::config::PinConfig::PushPull,
+            pin_config:
+                channel::config::PinConfig::PushPull,
         })
         .unwrap();
 

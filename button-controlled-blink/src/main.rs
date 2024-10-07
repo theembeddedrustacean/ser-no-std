@@ -7,7 +7,11 @@ Programming GPIO - Button Controlled Blinking Application Example
 #![no_main]
 
 use esp_backtrace as _;
-use esp_hal::{gpio::IO, peripherals::Peripherals, prelude::*};
+use esp_hal::{
+    gpio::{Input, Io, Level, Output, Pull},
+    peripherals::Peripherals,
+    prelude::*,
+};
 
 #[entry]
 fn main() -> ! {
@@ -15,14 +19,14 @@ fn main() -> ! {
     let peripherals = Peripherals::take();
 
     // Instantiate and Create Handle for IO
-    let io = IO::new(peripherals.GPIO, peripherals.IO_MUX);
+    let io = Io::new(peripherals.GPIO, peripherals.IO_MUX);
 
     // Instantiate and Create Handle for LED output & Button Input
-    let mut led = io.pins.gpio4.into_push_pull_output();
-    let button = io.pins.gpio0.into_pull_up_input();
+    let mut led = Output::new(io.pins.gpio4, Level::High);
+    let button = Input::new(io.pins.gpio0, Pull::Up);
 
     // Create and initialize a delay variable to manage delay loop
-    let mut blinkdelay = 10_0000_u32;
+    let mut blinkdelay = 1_000_000_u32;
 
     // Initialize LED to on or off
     led.set_low();
@@ -36,7 +40,7 @@ fn main() -> ! {
                 blinkdelay = blinkdelay - 2_5000_u32;
                 // If updated delay value reaches zero then reset it back to starting value
                 if blinkdelay < 2_5000 {
-                    blinkdelay = 10_0000_u32;
+                    blinkdelay = 1_000_000_u32;
                 }
             }
         }
