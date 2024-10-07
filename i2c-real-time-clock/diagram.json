@@ -8,7 +8,7 @@
           "id": "esp",
           "top": -76,
           "left": -10,
-          "attrs": { "builder": "rust-std-esp" }
+          "attrs": { "builder": "rust-nostd-esp" }
         },
         {
           "type": "wokwi-ds1307",
