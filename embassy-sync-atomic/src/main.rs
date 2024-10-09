@@ -1,17 +1,16 @@
 #![no_std]
 #![no_main]
 
-use core::fmt::Write;
 use core::sync::atomic::{AtomicU32, Ordering};
 use embassy_executor::Spawner;
 use embassy_time::{Duration, Timer};
 use esp_backtrace as _;
 use esp_hal::{
-    clock::ClockControl, gpio::Io,
-    peripherals::Peripherals, prelude::*,
-    system::SystemControl, uart::Uart,
+    clock::ClockControl, peripherals::Peripherals,
+    prelude::*, system::SystemControl,
+    timer::timg::TimerGroup,
 };
-use heapless::String;
+use esp_println::println;
 
 static SHARED: AtomicU32 = AtomicU32::new(0);
 
@@ -35,17 +34,9 @@ async fn main(spawner: Spawner) {
     let system = SystemControl::new(peripherals.SYSTEM);
     let clocks =
         ClockControl::max(system.clock_control).freeze();
-    //Configure UART
-    let io = Io::new(peripherals.GPIO, peripherals.IO_MUX);
-    let mut uart = Uart::new_async(
-        peripherals.UART0,
-        &clocks,
-        io.pins.gpio21,
-        io.pins.gpio20,
-    )
-    .unwrap();
-    // Create empty String for message
-    let mut msg: String<8> = String::new();
+    // Initalize embassy executor
+    let timg0 = TimerGroup::new(peripherals.TIMG0, &clocks);
+    esp_hal_embassy::init(&clocks, timg0.timer0);
     // Spawn async blinking task
     spawner.spawn(async_task()).unwrap();
 
@@ -54,10 +45,7 @@ async fn main(spawner: Spawner) {
         let shared = SHARED.load(Ordering::Relaxed);
         // Wait 1 second
         Timer::after(Duration::from_millis(1000)).await;
-        // Format value for printing
-        core::writeln!(&mut msg, "{:02}", shared).unwrap();
         // Transmit Message
-        uart.write_bytes(msg.as_bytes()).unwrap();
-        msg.clear();
+        println!("{}", shared);
     }
 }

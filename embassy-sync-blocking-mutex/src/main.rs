@@ -2,18 +2,17 @@
 #![no_main]
 
 use core::cell::RefCell;
-use core::fmt::Write;
 use embassy_executor::Spawner;
 use embassy_sync::blocking_mutex::raw::CriticalSectionRawMutex;
 use embassy_sync::blocking_mutex::Mutex;
 use embassy_time::{Duration, Timer};
 use esp_backtrace as _;
 use esp_hal::{
-    clock::ClockControl, gpio::Io,
-    peripherals::Peripherals, prelude::*,
-    system::SystemControl, uart::Uart,
+    clock::ClockControl, peripherals::Peripherals,
+    prelude::*, system::SystemControl,
+    timer::timg::TimerGroup,
 };
-use heapless::String;
+use esp_println::println;
 
 static SHARED: Mutex<
     CriticalSectionRawMutex,
@@ -39,17 +38,9 @@ async fn main(spawner: Spawner) {
     let system = SystemControl::new(peripherals.SYSTEM);
     let clocks =
         ClockControl::max(system.clock_control).freeze();
-    //Configure UART
-    let io = Io::new(peripherals.GPIO, peripherals.IO_MUX);
-    let mut uart = Uart::new_async(
-        peripherals.UART0,
-        &clocks,
-        io.pins.gpio21,
-        io.pins.gpio20,
-    )
-    .unwrap();
-    // Create empty String for message
-    let mut msg: String<8> = String::new();
+    // Initalize embassy executor
+    let timg0 = TimerGroup::new(peripherals.TIMG0, &clocks);
+    esp_hal_embassy::init(&clocks, timg0.timer0);
     // Spawn async blinking task
     spawner.spawn(async_task()).unwrap();
 
@@ -59,9 +50,7 @@ async fn main(spawner: Spawner) {
         // Obtain updated value from global context
         let shared =
             SHARED.lock(|f| f.clone().into_inner());
-        core::writeln!(&mut msg, "{:02}", shared).unwrap();
-        // Transmit Message
-        uart.write_bytes(msg.as_bytes()).unwrap();
-        msg.clear();
+        // Print Message
+        println!("{}", shared);
     }
 }
