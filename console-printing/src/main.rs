@@ -48,8 +48,8 @@ fn main() -> ! {
         peripherals.UART0,
         uart_config,
         &clocks,
-        io.pins.gpio21,
-        io.pins.gpio20,
+        io.pins.gpio43,
+        io.pins.gpio44,
     )
     .unwrap();
 

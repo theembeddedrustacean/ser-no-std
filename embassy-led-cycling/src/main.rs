@@ -45,7 +45,7 @@ async fn main(spawner: Spawner) {
     // Acquire Handle to IO
     let io = Io::new(peripherals.GPIO, peripherals.IO_MUX);
     // Configure Delay Button to Pull Up input
-    let del_but = AnyInput::new(io.pins.gpio10, Pull::Up);
+    let del_but = AnyInput::new(io.pins.gpio1, Pull::Up);
     // Inner scope is so that once the mutex is written to, the MutexGuard is dropped, thus the
     // Mutex is released
     {
@@ -53,16 +53,16 @@ async fn main(spawner: Spawner) {
     }
     // Configure LED Array Pins to Output & Store in Array
     let mut leds: [AnyOutput; 10] = [
-        AnyOutput::new(io.pins.gpio0, Level::Low),
-        AnyOutput::new(io.pins.gpio1, Level::Low),
-        AnyOutput::new(io.pins.gpio2, Level::Low),
-        AnyOutput::new(io.pins.gpio3, Level::Low),
         AnyOutput::new(io.pins.gpio4, Level::Low),
         AnyOutput::new(io.pins.gpio5, Level::Low),
         AnyOutput::new(io.pins.gpio6, Level::Low),
         AnyOutput::new(io.pins.gpio7, Level::Low),
+        AnyOutput::new(io.pins.gpio15, Level::Low),
+        AnyOutput::new(io.pins.gpio16, Level::Low),
+        AnyOutput::new(io.pins.gpio17, Level::Low),
+        AnyOutput::new(io.pins.gpio18, Level::Low),
         AnyOutput::new(io.pins.gpio8, Level::Low),
-        AnyOutput::new(io.pins.gpio9, Level::Low),
+        AnyOutput::new(io.pins.gpio3, Level::Low),
     ];
 
     // Spawn Button Press Task

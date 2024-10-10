@@ -4,17 +4,17 @@
   "editor": "wokwi",
   "parts": [
     {
-      "type": "board-esp32-s2-devkitm-1",
+      "type": "board-esp32-s3-devkitc-1",
       "id": "esp",
-      "top": -4.31,
-      "left": 4.57,
-      "attrs": { "builder": "rust-nostd-esp" }
+      "top": 0,
+      "left": 0,
+      "attrs": { "builder": "rust-std-esp" }
     },
     {
       "type": "wokwi-ntc-temperature-sensor",
       "id": "ntc1",
-      "top": 21.8,
-      "left": -269.4,
+      "top": 12.2,
+      "left": -288.6,
       "attrs": {}
     }
   ],
@@ -22,9 +22,9 @@
     [ "esp:TX", "$serialMonitor:RX", "", [] ],
     [ "esp:RX", "$serialMonitor:TX", "", [] ],
     [ "esp:4", "ntc1:OUT", "green", [ "h0" ] ],
-    [ "esp:GND.2", "ntc1:GND", "black", [ "h9.6", "v-38.4", "h-144", "v67.2" ] ],
-    [ "ntc1:VCC", "esp:3V3", "red", [ "h105.6", "v-38.4" ] ]
+    [ "ntc1:VCC", "esp:3V3.2", "red", [ "h134.4", "v-9.6", "h9.6" ] ],
+    [ "ntc1:GND", "esp:GND.2", "black", [ "h124.8", "v-57.6", "h144", "v48" ] ]
   ],
-  "serialMonitor": { "display": "terminal", "convertEol": true },
+  "serialMonitor": { "display": "terminal" },
   "dependencies": {}
 }

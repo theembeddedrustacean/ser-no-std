@@ -10,14 +10,14 @@ use core::cell::{Cell, RefCell};
 use critical_section::Mutex;
 use esp_backtrace as _;
 use esp_hal::{
-    gpio::{Event, Gpio0, Input, Io, Pull},
+    gpio::{Event, Gpio4, Input, Io, Pull},
     peripherals::Peripherals,
     prelude::*,
 };
 use esp_println::println;
 
 // Create a Global Variable for a GPIO Peripheral to pass around between threads.
-static G_PIN: Mutex<RefCell<Option<Input<Gpio0>>>> =
+static G_PIN: Mutex<RefCell<Option<Input<Gpio4>>>> =
     Mutex::new(RefCell::new(None));
 // Create a Global Variable for a FLAG to pass around between threads.
 static G_FLAG: Mutex<Cell<bool>> =
@@ -52,7 +52,7 @@ fn main() -> ! {
     // Step 1: Register interrupt handler
     io.set_interrupt_handler(gpio);
     // Step 2: Configure button pin direction
-    let mut some_pin = Input::new(io.pins.gpio0, Pull::Up);
+    let mut some_pin = Input::new(io.pins.gpio4, Pull::Up);
     // Step 3: Configure button input to trigger an interrupt on the falling edge and start listening to events
     some_pin.listen(Event::FallingEdge);
     // Step 4: Now that button is configured, move the input pin to the global context

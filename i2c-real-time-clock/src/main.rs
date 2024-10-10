@@ -30,8 +30,8 @@ fn main() -> ! {
 
     let mut ds1307 = I2C::new(
         peripherals.I2C0,
-        io.pins.gpio3,
-        io.pins.gpio2,
+        io.pins.gpio5,
+        io.pins.gpio4,
         100u32.kHz(),
         &clocks,
     );

@@ -36,7 +36,7 @@ fn main() -> ! {
 
     // Configure ADC channel
     let mut adc_pin = adc_config.enable_pin(
-        io.pins.gpio1,
+        io.pins.gpio4,
         Attenuation::Attenuation11dB,
     );
 
@@ -46,7 +46,8 @@ fn main() -> ! {
     loop {
         // Get ADC Reading
         let sample: u16 =
-            adc.read_oneshot(&mut adc_pin).unwrap();
+            nb::block!(adc.read_oneshot(&mut adc_pin))
+                .unwrap();
 
         // Convert to Voltage
         let voltage: u32 = sample as u32 * 3300 / 4095;
