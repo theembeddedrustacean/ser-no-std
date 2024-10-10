@@ -1,5 +1,5 @@
 [wokwi]
 version = 1
 gdbServerPort = 3333
-elf = "target/riscv32imc-unknown-none-elf/release/real-time-timer"
-firmware = "target/riscv32imc-unknown-none-elf/release/real-time-timer"
+elf = "target/xtensa-esp32s2-none-elf/debug/real-time-timer"
+firmware = "target/xtensa-esp32s2-none-elf/debug/real-time-timer"

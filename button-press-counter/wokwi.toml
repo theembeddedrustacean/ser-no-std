@@ -1,5 +1,5 @@
 [wokwi]
 version = 1
 gdbServerPort = 3333
-elf = "target/riscv32imc-unknown-none-elf/release/button-press-counter"
-firmware = "target/riscv32imc-unknown-none-elf/release/button-press-counter"
+elf = "target/xtensa-esp32s2-none-elf/debug/button-press-counter"
+firmware = "target/xtensa-esp32s2-none-elf/debug/button-press-counter"

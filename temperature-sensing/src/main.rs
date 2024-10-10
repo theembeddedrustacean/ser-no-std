@@ -44,14 +44,16 @@ fn main() -> ! {
     let mut adc = Adc::new(peripherals.ADC1, adc_config);
 
     const B: f64 = 3950.0; // B value of the thermistor
-    const VMAX: f64 = 4095.0; // Full Range Voltage
+    const VMAX: f64 = 4096.0; // Full Range Voltage
 
     loop {
         // Get ADC reading
-        let sample: u16 =
-            adc.read_oneshot(&mut adc_pin).unwrap();
+        // let sample: u16 =
+        //     adc.read_oneshot(&mut adc_pin).unwrap();
         // For blocking read
-        // let sample: u16 = nb::block!(adc.read_oneshot(&mut adc_pin)).unwrap();
+        let sample: u16 =
+            nb::block!(adc.read_oneshot(&mut adc_pin))
+                .unwrap();
 
         // Convert to temperature
         let temperature = 1.

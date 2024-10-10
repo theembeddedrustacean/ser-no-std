@@ -1,32 +1,30 @@
 {
-    "version": 1,
-    "editor": "wokwi",
-    "author": "The Embedded Rustacean <166909466+theembeddedrustacean@users.noreply.github.com>",
-    "parts": [
-        {
-          "type": "board-esp32-c3-devkitm-1",
-          "id": "esp",
-          "top": -179.33,
-          "left": -250.67,
-          "attrs": { "builder": "rust-nostd-esp" }
-        },
-        {
-          "type": "wokwi-ntc-temperature-sensor",
-          "id": "ntc1",
-          "top": -187.4,
-          "left": -535,
-          "attrs": {}
-        }
-      ],
-      "connections": [
-        [ "esp:TX", "$serialMonitor:RX", "", [] ],
-        [ "esp:RX", "$serialMonitor:TX", "", [] ],
-        [ "ntc1:GND", "esp:GND.1", "black", [ "h0" ] ],
-        [ "ntc1:VCC", "esp:3V3.1", "red", [ "h0" ] ],
-        [ "ntc1:OUT", "esp:4", "green", [ "h84.33", "v142.47", "h191.33", "v-66" ] ]
-      ],
-    "serialMonitor": {
-        "display": "terminal",
-        "convertEol": true
+  "version": 1,
+  "author": "The Embedded Rustacean <166909466+theembeddedrustacean@users.noreply.github.com>",
+  "editor": "wokwi",
+  "parts": [
+    {
+      "type": "board-esp32-s2-devkitm-1",
+      "id": "esp",
+      "top": -4.31,
+      "left": 4.57,
+      "attrs": { "builder": "rust-nostd-esp" }
+    },
+    {
+      "type": "wokwi-ntc-temperature-sensor",
+      "id": "ntc1",
+      "top": 21.8,
+      "left": -269.4,
+      "attrs": {}
     }
+  ],
+  "connections": [
+    [ "esp:TX", "$serialMonitor:RX", "", [] ],
+    [ "esp:RX", "$serialMonitor:TX", "", [] ],
+    [ "esp:4", "ntc1:OUT", "green", [ "h0" ] ],
+    [ "esp:GND.2", "ntc1:GND", "black", [ "h9.6", "v-38.4", "h-144", "v67.2" ] ],
+    [ "ntc1:VCC", "esp:3V3", "red", [ "h105.6", "v-38.4" ] ]
+  ],
+  "serialMonitor": { "display": "terminal", "convertEol": true },
+  "dependencies": {}
 }

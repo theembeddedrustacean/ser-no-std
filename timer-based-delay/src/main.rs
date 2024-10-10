@@ -41,11 +41,11 @@ fn main() -> ! {
     // Instantiate Timer0 in Timer Group 0
     let timer0 = timer_group0.timer0;
 
-    // Capture Start Time
-    let mut start = timer0.now();
-
     // Activate Counter to Start Counting
     timer0.start();
+
+    // Capture Start Time
+    let mut start = timer0.now();
 
     loop {
         // Check if Timer Reached or Exceeded 1 second

@@ -58,7 +58,7 @@ fn main() -> ! {
 
     loop {
         println!("esp_println output");
-        log.write_bytes("write method output".as_bytes())
+        log.write_bytes("write method output\n".as_bytes())
             .unwrap();
         delay.delay_millis(1000u32);
     }

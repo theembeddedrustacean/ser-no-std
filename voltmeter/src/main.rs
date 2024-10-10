@@ -36,7 +36,7 @@ fn main() -> ! {
 
     // Configure ADC channel
     let mut adc_pin = adc_config.enable_pin(
-        io.pins.gpio0,
+        io.pins.gpio1,
         Attenuation::Attenuation11dB,
     );
 

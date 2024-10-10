@@ -1,4 +1,4 @@
-[target.riscv32imc-unknown-none-elf]
+[target.xtensa-esp32s2-none-elf]
 runner = "espflash flash --monitor"
 
 
@@ -7,12 +7,10 @@ ESP_LOGLEVEL="INFO"
 
 [build]
 rustflags = [
-  # Required to obtain backtraces (e.g. when using the "esp-backtrace" crate.)
-  # NOTE: May negatively impact performance of produced code
-  "-C", "force-frame-pointers",
+  "-C", "link-arg=-nostartfiles",
 ]
 
-target = "riscv32imc-unknown-none-elf"
+target = "xtensa-esp32s2-none-elf"
 
 [unstable]
 build-std = ["core"]

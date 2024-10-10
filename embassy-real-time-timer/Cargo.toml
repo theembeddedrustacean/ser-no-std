@@ -7,24 +7,21 @@ license = "MIT OR Apache-2.0"
 
 [dependencies]
 esp-backtrace = { version = "0.14.1", features = [
-    "esp32c3",
+    "esp32s2",
     "exception-handler",
     "panic-handler",
     "println",
 ] }
-esp-hal = { version = "0.20.1", features = ["esp32c3", "async"] }
-esp-println = { version = "0.11.0", features = ["esp32c3", "log"] }
-log = { version = "0.4.20" }
-esp-hal-embassy = {version = "0.3.0", features = ["esp32c3", "integrated-timers", "log"]}
-esp-hal-procmacros = {version = "0.13.0", features = ["embassy","interrupt"]}
-embassy-executor    = { version = "0.6.0", features = ["task-arena-size-40960"]}
+esp-hal = { version = "0.20.1", features = [ "esp32s2", "async" ] }
+esp-println = { version = "0.11.0", features = ["esp32s2", "log"] }
+log = { version = "0.4.21" }
+esp-hal-embassy = {version = "0.3.0", features = ["esp32s2", "integrated-timers"]}
+embassy-executor    = { version = "0.6.0", features = ["task-arena-size-98304"]}
 embassy-futures     = "0.1.1"
 embassy-sync        = "0.6.0"
 embassy-time        = "0.3.2"
 embedded-hal-async = "1.0.0"
 embedded-io-async = "0.6.1"
-static_cell = {version = "2.1.0"}
-portable-atomic = "1.8.0"
 
 
 [profile.dev]

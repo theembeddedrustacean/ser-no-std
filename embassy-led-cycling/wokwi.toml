@@ -1,5 +1,5 @@
 [wokwi]
 version = 1
 gdbServerPort = 3333
-elf = "target/riscv32imc-unknown-none-elf/release/embassy-led-cycling"
-firmware = "target/riscv32imc-unknown-none-elf/release/embassy-led-cycling"
+elf = "target/xtensa-esp32s2-none-elf/debug/embassy-led-cycling"
+firmware = "target/xtensa-esp32s2-none-elf/debug/embassy-led-cycling"
