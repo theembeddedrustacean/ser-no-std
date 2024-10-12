@@ -8,24 +8,22 @@ Programming Timers & Counters - Timer-Based Delay Application Example
 
 use esp_backtrace as _;
 use esp_hal::{
-    clock::ClockControl,
+    
     gpio::{Io, Level, Output},
-    peripherals::Peripherals,
+    
     prelude::*,
-    system::SystemControl,
+    
     timer::timg::TimerGroup,
 };
 
 #[entry]
 fn main() -> ! {
     // Take the peripherals
-    let peripherals = Peripherals::take();
+    let peripherals = esp_hal::init(esp_hal::Config::default());
 
-    // Set up system clocks
-    let system = SystemControl::new(peripherals.SYSTEM);
-    let clocks =
-        ClockControl::boot_defaults(system.clock_control)
-            .freeze();
+    
+    
+ 
 
     // Instantiate and Create Handle for IO
     let io = Io::new(peripherals.GPIO, peripherals.IO_MUX);
@@ -36,7 +34,7 @@ fn main() -> ! {
 
     // Instantiate Timer Group 0
     let timer_group0 =
-        TimerGroup::new(peripherals.TIMG0, &clocks);
+        TimerGroup::new(peripherals.TIMG0);
 
     // Instantiate Timer0 in Timer Group 0
     let timer0 = timer_group0.timer0;

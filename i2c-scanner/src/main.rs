@@ -7,29 +7,24 @@ Programming Serial Communication - I2C Scanner Application Example
 #![no_main]
 
 use esp_backtrace as _;
-use esp_hal::{
-    clock::ClockControl, gpio::Io, i2c::I2C, peripherals::Peripherals, prelude::*,
-    system::SystemControl,
-};
+use esp_hal::{gpio::Io, i2c::I2c, prelude::*};
 use esp_println::println;
 
 #[entry]
 fn main() -> ! {
     // Take Peripherals and Setup System Clocks
-    let peripherals = Peripherals::take();
-    let system = SystemControl::new(peripherals.SYSTEM);
-    let clocks = ClockControl::boot_defaults(system.clock_control).freeze();
+    let peripherals =
+        esp_hal::init(esp_hal::Config::default());
 
     // Create IO Driver
     let io = Io::new(peripherals.GPIO, peripherals.IO_MUX);
 
     // Initialize and configure I2C0
-    let mut i2c0 = I2C::new(
+    let mut i2c0 = I2c::new(
         peripherals.I2C0,
         io.pins.gpio3,
         io.pins.gpio2,
         100u32.kHz(),
-        &clocks,
     );
 
     // Start Scan at Address 1 going up to 127
@@ -41,7 +36,10 @@ fn main() -> ! {
 
         // Check and Print Result
         match res {
-            Ok(_) => println!("Device Found at Address {}", addr as u8),
+            Ok(_) => println!(
+                "Device Found at Address {}",
+                addr as u8
+            ),
             Err(_) => println!("No Device Found"),
         }
     }

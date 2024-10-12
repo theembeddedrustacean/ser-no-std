@@ -9,24 +9,18 @@ Programming ADCs - Temperature Sensing Application Example
 use esp_backtrace as _;
 use esp_hal::{
     analog::adc::{Adc, AdcConfig, Attenuation},
-    clock::ClockControl,
     delay::Delay,
     gpio::Io,
-    peripherals::Peripherals,
     prelude::*,
-    system::SystemControl,
 };
 use esp_println::println;
 use libm::log;
 
 #[entry]
 fn main() -> ! {
-    let peripherals = Peripherals::take();
-    let system = SystemControl::new(peripherals.SYSTEM);
-
-    let clocks =
-        ClockControl::max(system.clock_control).freeze();
-    let delay = Delay::new(&clocks);
+    let peripherals =
+        esp_hal::init(esp_hal::Config::default());
+    let delay = Delay::new();
 
     // Instantiate and Create Handle for IO
     let io = Io::new(peripherals.GPIO, peripherals.IO_MUX);

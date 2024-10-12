@@ -13,10 +13,8 @@ use embassy_sync::{
 };
 use esp_backtrace as _;
 use esp_hal::{
-    clock::ClockControl,
     gpio::Io,
-    peripherals::{Peripherals, UART0},
-    system::SystemControl,
+    peripherals::UART0,
     timer::timg::TimerGroup,
     uart::{
         config::{AtCmdConfig, Config},
@@ -93,11 +91,8 @@ async fn uart_reader(
 
 #[esp_hal_embassy::main]
 async fn main(spawner: Spawner) {
-    let peripherals = Peripherals::take();
-    let system = SystemControl::new(peripherals.SYSTEM);
-    let clocks =
-        ClockControl::boot_defaults(system.clock_control)
-            .freeze();
+    let peripherals =
+        esp_hal::init(esp_hal::Config::default());
 
     // Instantiate GPIO pins for UART
     let io = Io::new(peripherals.GPIO, peripherals.IO_MUX);
@@ -105,9 +100,8 @@ async fn main(spawner: Spawner) {
         (io.pins.gpio21, io.pins.gpio20);
 
     // Initalize embassy executor
-    let timg0 =
-        TimerGroup::new(peripherals.TIMG0, &clocks);
-    esp_hal_embassy::init(&clocks, timg0.timer0);
+    let timg0 = TimerGroup::new(peripherals.TIMG0);
+    esp_hal_embassy::init(timg0.timer0);
 
     // Initialize and configure UART0
     let config = Config::default()
@@ -115,7 +109,6 @@ async fn main(spawner: Spawner) {
     let mut uart0 = Uart::new_async_with_config(
         peripherals.UART0,
         config,
-        &clocks,
         tx_pin,
         rx_pin,
     )
@@ -125,7 +118,7 @@ async fn main(spawner: Spawner) {
     ));
 
     // Split UART0 to create seperate Tx and Rx handles
-    let (tx, rx) = uart0.split();
+    let (rx, tx) = uart0.split();
 
     // Spawn Tx and Rx tasks
     spawner.spawn(uart_reader(rx)).ok();
