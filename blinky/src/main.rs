@@ -8,25 +8,18 @@ Programming GPIO - Blinky Application Example
 
 use esp_backtrace as _;
 use esp_hal::{
-    clock::ClockControl,
     delay::Delay,
     gpio::{Io, Level, Output},
-    peripherals::Peripherals,
     prelude::*,
-    system::SystemControl,
 };
 
 #[entry]
 fn main() -> ! {
     // Take the peripherals
-    let peripherals = Peripherals::take();
-
-    // Set up system clocks
-    let system = SystemControl::new(peripherals.SYSTEM);
-    let clocks = ClockControl::boot_defaults(system.clock_control).freeze();
+    let peripherals = esp_hal::init(esp_hal::Config::default());
 
     // Create a delay handle
-    let delay = Delay::new(&clocks);
+    let delay = Delay::new();
 
     // Instantiate and Create Handle for IO
     let io = Io::new(peripherals.GPIO, peripherals.IO_MUX);

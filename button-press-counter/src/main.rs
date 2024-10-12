@@ -10,14 +10,13 @@ use core::cell::{Cell, RefCell};
 use critical_section::Mutex;
 use esp_backtrace as _;
 use esp_hal::{
-    gpio::{Event, Gpio4, Input, Io, Pull},
-    peripherals::Peripherals,
+    gpio::{Event, Input, Io, Pull},
     prelude::*,
 };
 use esp_println::println;
 
 // Create a Global Variable for a GPIO Peripheral to pass around between threads.
-static G_PIN: Mutex<RefCell<Option<Input<Gpio4>>>> =
+static G_PIN: Mutex<RefCell<Option<Input>>> =
     Mutex::new(RefCell::new(None));
 // Create a Global Variable for a FLAG to pass around between threads.
 static G_FLAG: Mutex<Cell<bool>> =
@@ -42,7 +41,8 @@ fn gpio() {
 #[entry]
 fn main() -> ! {
     // Take Peripherals
-    let peripherals = Peripherals::take();
+    let peripherals =
+        esp_hal::init(esp_hal::Config::default());
 
     // Create IO Driver
     let mut io =

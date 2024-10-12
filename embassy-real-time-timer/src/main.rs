@@ -9,10 +9,7 @@ The Embassy Framework - Real-time Timer Application Example
 use embassy_executor::Spawner;
 use embassy_time::{Duration, Timer};
 use esp_backtrace as _;
-use esp_hal::{
-    clock::ClockControl, peripherals::Peripherals,
-    system::SystemControl, timer::timg::TimerGroup,
-};
+use esp_hal::timer::timg::TimerGroup;
 use esp_println::println;
 
 struct Time {
@@ -23,15 +20,12 @@ struct Time {
 
 #[esp_hal_embassy::main]
 async fn main(_spawner: Spawner) {
-    let peripherals = Peripherals::take();
-    let system = SystemControl::new(peripherals.SYSTEM);
-    let clocks =
-        ClockControl::boot_defaults(system.clock_control)
-            .freeze();
+    let peripherals =
+        esp_hal::init(esp_hal::Config::default());
 
     // Initalize embassy executor
-    let timg0 = TimerGroup::new(peripherals.TIMG0, &clocks);
-    esp_hal_embassy::init(&clocks, timg0.timer0);
+    let timg0 = TimerGroup::new(peripherals.TIMG0);
+    esp_hal_embassy::init(timg0.timer0);
 
     // This line is for Wokwi only so that the console output is formatted correctly
     esp_println::print!("\x1b[20h");

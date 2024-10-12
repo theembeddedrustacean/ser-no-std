@@ -10,25 +10,19 @@ use embassy_executor::Spawner;
 use embassy_time::{Duration, Timer};
 use esp_backtrace as _;
 use esp_hal::{
-    clock::ClockControl,
     gpio::{Io, Level, Output},
-    peripherals::Peripherals,
-    system::SystemControl,
     timer::timg::TimerGroup,
 };
 
 #[esp_hal_embassy::main]
 async fn main(_spawner: Spawner) {
     // Take peripherals & Configure System Clocks
-    let peripherals = Peripherals::take();
-    let system = SystemControl::new(peripherals.SYSTEM);
-    let clocks =
-        ClockControl::boot_defaults(system.clock_control)
-            .freeze();
+    let peripherals =
+        esp_hal::init(esp_hal::Config::default());
 
     // Initalize embassy executor
-    let timg0 = TimerGroup::new(peripherals.TIMG0, &clocks);
-    esp_hal_embassy::init(&clocks, timg0.timer0);
+    let timg0 = TimerGroup::new(peripherals.TIMG0);
+    esp_hal_embassy::init(timg0.timer0);
 
     // Setup and Configure LED Output Pin
     let io = Io::new(peripherals.GPIO, peripherals.IO_MUX);

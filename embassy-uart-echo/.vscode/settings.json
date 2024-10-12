@@ -1,3 +1,4 @@
 {
+    "rust-analyzer.cargo.target": "xtensa-esp32s3-none-elf",
     "rust-analyzer.check.allTargets": false,
 }

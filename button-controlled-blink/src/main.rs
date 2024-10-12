@@ -9,14 +9,13 @@ Programming GPIO - Button Controlled Blinking Application Example
 use esp_backtrace as _;
 use esp_hal::{
     gpio::{Input, Io, Level, Output, Pull},
-    peripherals::Peripherals,
     prelude::*,
 };
 
 #[entry]
 fn main() -> ! {
     // Take Peripherals
-    let peripherals = Peripherals::take();
+    let peripherals = esp_hal::init(esp_hal::Config::default());
 
     // Instantiate and Create Handle for IO
     let io = Io::new(peripherals.GPIO, peripherals.IO_MUX);

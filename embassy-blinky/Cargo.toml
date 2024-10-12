@@ -12,10 +12,10 @@ esp-backtrace = { version = "0.14.1", features = [
     "panic-handler",
     "println",
 ] }
-esp-hal = { version = "0.20.1", features = [ "esp32s3", "async" ] }
-esp-println = { version = "0.11.0", features = ["esp32s3", "log"] }
+esp-hal = { version = "0.21.0", features = [ "esp32s3"] }
+esp-println = { version = "0.12.0", features = ["esp32s3", "log"] }
 log = { version = "0.4.21" }
-esp-hal-embassy = {version = "0.3.0", features = ["esp32s3", "integrated-timers"]}
+esp-hal-embassy = {version = "0.4.0", features = ["esp32s3", "integrated-timers"]}
 embassy-executor    = { version = "0.6.0", features = ["task-arena-size-98304"]}
 embassy-futures     = "0.1.1"
 embassy-sync        = "0.6.0"

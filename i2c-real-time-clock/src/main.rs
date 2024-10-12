@@ -8,9 +8,7 @@ Programming Serial Communication - I2C Real-time Clock Application Example
 
 use esp_backtrace as _;
 use esp_hal::{
-    clock::ClockControl, delay::Delay, gpio::Io, i2c::I2C,
-    peripherals::Peripherals, prelude::*,
-    system::SystemControl,
+    delay::Delay, gpio::Io, i2c::I2c, prelude::*,
 };
 use esp_println::println;
 use nobcd::BcdNumber;
@@ -19,21 +17,18 @@ const DS1307_ADDR: u8 = 0x68;
 
 #[entry]
 fn main() -> ! {
-    let peripherals = Peripherals::take();
-    let system = SystemControl::new(peripherals.SYSTEM);
+    let peripherals =
+        esp_hal::init(esp_hal::Config::default());
 
-    let clocks =
-        ClockControl::max(system.clock_control).freeze();
-    let delay = Delay::new(&clocks);
+    let delay = Delay::new();
 
     let io = Io::new(peripherals.GPIO, peripherals.IO_MUX);
 
-    let mut ds1307 = I2C::new(
+    let mut ds1307 = I2c::new(
         peripherals.I2C0,
         io.pins.gpio5,
         io.pins.gpio4,
         100u32.kHz(),
-        &clocks,
     );
 
     #[repr(u8)]

@@ -2,9 +2,6 @@
 runner = "espflash flash --monitor"
 
 
-[env]
-ESP_LOGLEVEL="INFO"
-
 [build]
 rustflags = [
   "-C", "link-arg=-nostartfiles",

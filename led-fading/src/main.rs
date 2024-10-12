@@ -8,34 +8,29 @@ Programming PWM - LED Fading Application Example
 
 use esp_backtrace as _;
 use esp_hal::{
-    clock::ClockControl,
     delay::Delay,
     gpio::Io,
     ledc::{
         channel, timer, LSGlobalClkSource, Ledc, LowSpeed,
     },
-    peripherals::Peripherals,
     prelude::*,
-    system::SystemControl,
 };
 
 #[entry]
 fn main() -> ! {
     // Take Peripherals and Configure System Clocks
-    let peripherals = Peripherals::take();
-    let system = SystemControl::new(peripherals.SYSTEM);
-    let clocks =
-        ClockControl::max(system.clock_control).freeze();
+    let peripherals =
+        esp_hal::init(esp_hal::Config::default());
 
     // Instantiate delay abstraction
-    let delay = Delay::new(&clocks);
+    let delay = Delay::new();
 
     // Configure GPIO Pin to be used for LEDC peripheral
     let io = Io::new(peripherals.GPIO, peripherals.IO_MUX);
     let led = io.pins.gpio7;
 
     // Create LEDC instance with low speed global clock
-    let mut ledc = Ledc::new(peripherals.LEDC, &clocks);
+    let mut ledc = Ledc::new(peripherals.LEDC);
     ledc.set_global_slow_clock(LSGlobalClkSource::APBClk);
 
     // Configure LEDC timer

@@ -10,11 +10,9 @@ use core::cell::{Cell, RefCell};
 use critical_section::Mutex;
 use esp_backtrace as _;
 use esp_hal::{
-    clock::ClockControl,
     delay::MicrosDurationU64,
-    peripherals::{Peripherals, TIMG0},
+    peripherals::TIMG0,
     prelude::*,
-    system::SystemControl,
     timer::timg::{Timer, Timer0, TimerGroup},
 };
 use esp_println::println;
@@ -60,17 +58,11 @@ fn tg0_t0_level() {
 #[entry]
 fn main() -> ! {
     // Take Peripherals
-    let peripherals = Peripherals::take();
-
-    // Set up system clocks
-    let system = SystemControl::new(peripherals.SYSTEM);
-    let clocks =
-        ClockControl::boot_defaults(system.clock_control)
-            .freeze();
+    let peripherals =
+        esp_hal::init(esp_hal::Config::default());
 
     // Instantiate Timer Group 0
-    let timer_group0 =
-        TimerGroup::new(peripherals.TIMG0, &clocks);
+    let timer_group0 = TimerGroup::new(peripherals.TIMG0);
 
     // Instantiate Timer0 in Timer Group 0
     let timer0 = timer_group0.timer0;
