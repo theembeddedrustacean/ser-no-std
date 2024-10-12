@@ -26,7 +26,7 @@ async fn main(_spawner: Spawner) {
 
     // Setup and Configure LED Output Pin
     let io = Io::new(peripherals.GPIO, peripherals.IO_MUX);
-    let mut led = Output::new(io.pins.gpio1, Level::High);
+    let mut led = Output::new(io.pins.gpio0, Level::High);
 
     loop {
         // Turn on LED

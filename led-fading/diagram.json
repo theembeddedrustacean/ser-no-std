@@ -4,34 +4,28 @@
   "editor": "wokwi",
   "parts": [
     {
-      "type": "board-esp32-s3-devkitc-1",
+      "type": "board-esp32-devkit-c-v4",
       "id": "esp",
       "top": 0,
       "left": 0,
       "attrs": { "builder": "rust-std-esp" }
     },
-    {
-      "type": "wokwi-led",
-      "id": "led1",
-      "top": 15.6,
-      "left": -159.4,
-      "attrs": { "color": "red" }
-    },
+    { "type": "wokwi-led", "id": "led1", "top": 6, "left": 167, "attrs": { "color": "red" } },
     {
       "type": "wokwi-resistor",
       "id": "r1",
-      "top": 100.8,
-      "left": -173.35,
+      "top": 91.2,
+      "left": 162.65,
       "rotate": 90,
-      "attrs": { "value": "1000" }
+      "attrs": { "value": "100" }
     }
   ],
   "connections": [
     [ "esp:TX", "$serialMonitor:RX", "", [] ],
     [ "esp:RX", "$serialMonitor:TX", "", [] ],
-    [ "led1:A", "esp:7", "green", [ "v0" ] ],
-    [ "esp:GND.1", "r1:2", "black", [ "h0" ] ],
-    [ "r1:1", "led1:C", "green", [ "h0" ] ]
+    [ "esp:GND.3", "led1:C", "black", [ "h0" ] ],
+    [ "led1:A", "r1:1", "green", [ "v0" ] ],
+    [ "esp:15", "r1:2", "green", [ "v0", "h91.24" ] ]
   ],
   "serialMonitor": { "display": "terminal" },
   "dependencies": {}

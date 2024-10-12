@@ -9,13 +9,13 @@ license = "MIT OR Apache-2.0"
 
 [dependencies]
 esp-backtrace = { version = "0.14.1", features = [
-    "esp32s3",
+    "esp32",
     "exception-handler",
     "panic-handler",
     "println",
 ] }
-esp-hal = { version = "0.21.0", features = ["esp32s3"] }
-esp-println = { version = "0.12.0", features = ["esp32s3", "log"] }
+esp-hal = { version = "0.21.0", features = ["esp32"] }
+esp-println = { version = "0.12.0", features = ["esp32", "log"] }
 log = { version = "0.4.22" }
 [profile.dev]
 # Rust debug is too slow.ß

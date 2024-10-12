@@ -41,12 +41,13 @@ fn main() -> ! {
     let mut log = Uart::new_with_config(
         peripherals.UART0,
         uart_config,
-        io.pins.gpio43,
-        io.pins.gpio44,
+        io.pins.gpio21,
+        io.pins.gpio22,
     )
     .unwrap();
 
-    // This line is for Wokwi only so that the console output is formatted correctly
+    // This line is for Wokwi only so that the console
+    // output is formatted correctly
     esp_println::print!("\x1b[20h");
 
     loop {

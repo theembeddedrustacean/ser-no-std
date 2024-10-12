@@ -16,7 +16,8 @@ use esp_hal::{
 #[entry]
 fn main() -> ! {
     // Take the peripherals
-    let peripherals = esp_hal::init(esp_hal::Config::default());
+    let peripherals =
+        esp_hal::init(esp_hal::Config::default());
 
     // Create a delay handle
     let delay = Delay::new();
@@ -25,7 +26,8 @@ fn main() -> ! {
     let io = Io::new(peripherals.GPIO, peripherals.IO_MUX);
 
     // Create output pin
-    let mut led_pin = Output::new(io.pins.gpio1, Level::Low);
+    let mut led_pin =
+        Output::new(io.pins.gpio0, Level::Low);
 
     loop {
         // Turn on LED

@@ -27,7 +27,7 @@ fn main() -> ! {
 
     // Configure GPIO Pin to be used for LEDC peripheral
     let io = Io::new(peripherals.GPIO, peripherals.IO_MUX);
-    let led = io.pins.gpio7;
+    let led = io.pins.gpio15;
 
     // Create LEDC instance with low speed global clock
     let mut ledc = Ledc::new(peripherals.LEDC);

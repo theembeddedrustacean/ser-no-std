@@ -4,20 +4,20 @@
   "editor": "wokwi",
   "parts": [
     {
-      "type": "board-esp32-s3-devkitc-1",
+      "type": "board-esp32-devkit-c-v4",
       "id": "esp",
       "top": 0,
       "left": 0,
       "attrs": { "builder": "rust-std-esp" }
     },
-    { "type": "wokwi-potentiometer", "id": "pot1", "top": -87.7, "left": -182.6, "attrs": {} }
+    { "type": "wokwi-potentiometer", "id": "pot1", "top": -126.1, "left": 191.8, "attrs": {} }
   ],
   "connections": [
     [ "esp:TX", "$serialMonitor:RX", "", [] ],
     [ "esp:RX", "$serialMonitor:TX", "", [] ],
-    [ "pot1:VCC", "esp:3V3.1", "red", [ "v0" ] ],
-    [ "pot1:SIG", "esp:4", "green", [ "v0" ] ],
-    [ "esp:GND.1", "pot1:GND", "black", [ "h0" ] ]
+    [ "esp:3V3", "pot1:VCC", "red", [ "h-33.41", "v-57.6", "h268.8" ] ],
+    [ "pot1:GND", "esp:GND.2", "black", [ "v0" ] ],
+    [ "esp:4", "pot1:SIG", "green", [ "h0" ] ]
   ],
   "serialMonitor": { "display": "terminal" },
   "dependencies": {}

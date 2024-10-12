@@ -38,30 +38,32 @@ async fn main(spawner: Spawner) {
     // Acquire Handle to IO
     let io = Io::new(peripherals.GPIO, peripherals.IO_MUX);
     // Configure Delay Button to Pull Up input
-    let del_but = Input::new(io.pins.gpio1, Pull::Up);
-    // Inner scope is so that once the mutex is written to, the MutexGuard is dropped, thus the
+    let del_but = Input::new(io.pins.gpio4, Pull::Up);
+    // Inner scope is so that once the mutex is written to,
+    // the MutexGuard is dropped, thus the
     // Mutex is released
     {
         *(BUTTON.lock().await) = Some(del_but);
     }
     // Configure LED Array Pins to Output & Store in Array
     let mut leds: [Output; 10] = [
-        Output::new(io.pins.gpio4, Level::Low),
-        Output::new(io.pins.gpio5, Level::Low),
-        Output::new(io.pins.gpio6, Level::Low),
-        Output::new(io.pins.gpio7, Level::Low),
-        Output::new(io.pins.gpio15, Level::Low),
-        Output::new(io.pins.gpio16, Level::Low),
-        Output::new(io.pins.gpio17, Level::Low),
         Output::new(io.pins.gpio18, Level::Low),
-        Output::new(io.pins.gpio8, Level::Low),
-        Output::new(io.pins.gpio3, Level::Low),
+        Output::new(io.pins.gpio19, Level::Low),
+        Output::new(io.pins.gpio32, Level::Low),
+        Output::new(io.pins.gpio33, Level::Low),
+        Output::new(io.pins.gpio25, Level::Low),
+        Output::new(io.pins.gpio26, Level::Low),
+        Output::new(io.pins.gpio27, Level::Low),
+        Output::new(io.pins.gpio14, Level::Low),
+        Output::new(io.pins.gpio12, Level::Low),
+        Output::new(io.pins.gpio13, Level::Low),
     ];
 
     // Spawn Button Press Task
     spawner.spawn(press_button(&BUTTON)).unwrap();
 
-    // This line is for Wokwi only so that the console output is formatted correctly
+    // This line is for Wokwi only so that the console
+    // output is formatted correctly
     esp_println::print!("\x1b[20h");
 
     // Enter Application Loop Blinking on LED at a Time

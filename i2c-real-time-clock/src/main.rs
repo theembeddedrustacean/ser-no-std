@@ -26,7 +26,7 @@ fn main() -> ! {
 
     let mut ds1307 = I2c::new(
         peripherals.I2C0,
-        io.pins.gpio5,
+        io.pins.gpio16,
         io.pins.gpio4,
         100u32.kHz(),
     );
@@ -122,10 +122,12 @@ fn main() -> ! {
         .unwrap();
 
     loop {
-        // Initialize Array that will buffer data read from the DS1307
+        // Initialize Array that will buffer data read from
+        // the DS1307
         let mut data: [u8; 7] = [0_u8; 7];
 
-        // Provide Starting Address (zero) to Read Data from DS1307
+        // Provide Starting Address (zero) to Read Data from
+        // DS1307
         ds1307.write(DS1307_ADDR, &[0_u8]).unwrap();
         ds1307.read(DS1307_ADDR, &mut data).unwrap();
 
