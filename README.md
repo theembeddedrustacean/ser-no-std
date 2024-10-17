@@ -13,25 +13,37 @@ If you find any code issues in the book, please [report a bug here](https://gith
 
 You are also welcome to [suggest a feature here](https://github.com/theembeddedrustacean/ser-no-std/issues/new?assignees=&labels=enhancement&projects=&template=feature_request.md&title=) so it may be considered for content in the future.
 
-## 🔗 Links to Book Examples
-| Device   | Devkit | GitHub Links | Wokwi Links |
-| -------- | ------ | ------------ | ----------- |
-| ESP32-C3 | [ESP32-C3-DevKitM-1](https://docs.espressif.com/projects/esp-idf/en/latest/esp32c3/hw-reference/esp32c3/user-guide-devkitm-1.html) | [ESP32-C3-DevKitM-1 Branch](#) | **CH 6 - GPIO**<br>[Blinky](https://wokwi.com/projects/391678247863083009)<br>[Button Controlled Blinking](https://wokwi.com/projects/391678361146008577)<br>[Button Press Counter](https://wokwi.com/projects/391678393219863553)<br>**CH 7 - ADC**<br>[Simple Voltmeter](https://wokwi.com/projects/391678430405517313)<br>[Temperature Sensing](https://wokwi.com/projects/391678465337780225)<br>**CH 8 - Timers & Counters**<br>[Timer Based Delay](https://wokwi.com/projects/391678495008295937)<br>[Real-Time Timer](https://wokwi.com/projects/391678635458788353)<br>**CH 9 - PWM**<br>[LED Fading](https://wokwi.com/projects/391678663139101697)<br>**CH 10 - Serial Communication**<br>[Console Printing](https://wokwi.com/projects/391678698454099969)<br>[Interacting with an I2C RTC](https://wokwi.com/projects/391678723554917377)<br>**CH 11 - The Embassy Framework**<br>[Blinky](https://wokwi.com/projects/391678752889882625)<br>[Real-time Timer](https://wokwi.com/projects/391678776862429185)<br>[LED Cycling](https://wokwi.com/projects/391678800985971713)<br>[UART Echo](https://wokwi.com/projects/391678832909874177) |
-| ESP32-C3 | [ESP32-C3-DevKit-RUST-1](https://github.com/esp-rs/esp-rust-board/tree/v1.2) | 🚫 | 🚫 |
-| ESP32-S2 | [ESP32-S2-DevKitM-1](https://docs.espressif.com/projects/esp-idf/en/latest/esp32s2/hw-reference/esp32s2/user-guide-devkitm-1-v1.html) | 🚫 | 🚫 |
-| ESP32-S3 | [ESP32-S3-DevKitC-1](https://docs.espressif.com/projects/esp-idf/en/latest/esp32s3/hw-reference/esp32s3/user-guide-devkitc-1.html)    | 🚫 | 🚫 |
-| ESP32    | [ESP32-Dev-KitC](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/hw-reference/esp32/get-started-devkitc.html#get-started-esp32-devkitc-board-front) | 🚫 | 🚫 |
+## 🔗 GitHub Project Links
+This is a list of the project links containing the example source code for the different ESP devkits. All projects were setup using VS Code as an editor. Each branch contains the same collection of code examples accomodated for the different ESP devkits supported by Wokwi. Click on the link for the device you desire to work with and clone that particular branch.
+| Device   | Devkit | GitHub Links | 
+| -------- | ------ | ------------ | 
+| ESP32-C3 | [ESP32-C3-DevKitM-1](https://docs.espressif.com/projects/esp-idf/en/latest/esp32c3/hw-reference/esp32c3/user-guide-devkitm-1.html) | [ESP32-C3-DevKitM-1 Branch](#) |
+| ESP32-C3 | [ESP32-C3-DevKit-RUST-1](https://www.espressif.com/en/dev-board/esp32-c3-devkit-rust-1-en) | [ESP32-C3-DevKit-RUST-1 Branch](https://github.com/theembeddedrustacean/ser-no-std/tree/esp32c3rust1) | 
+| ESP32-S2 | [ESP32-S2-DevKitM-1](https://docs.espressif.com/projects/esp-idf/en/latest/esp32s2/hw-reference/esp32s2/user-guide-devkitm-1-v1.html) | [ESP32-S2-DevKitM-1 Branch](https://github.com/theembeddedrustacean/ser-no-std/tree/esp32s2dkm1) | 
+| ESP32-S3 | [ESP32-S3-DevKitC-1](https://docs.espressif.com/projects/esp-idf/en/latest/esp32s3/hw-reference/esp32s3/user-guide-devkitc-1.html)    | [ESP32-S3-DevKitC-1 Branch](https://github.com/theembeddedrustacean/ser-no-std/tree/esp32s3dkc1) | 
+| ESP32    | [ESP32-Dev-KitC](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/hw-reference/esp32/get-started-devkitc.html#get-started-esp32-devkitc-board-front) | [ESP32-DevKitC Branch](https://github.com/theembeddedrustacean/ser-no-std/tree/esp32dkc) | 
 
+## 🔗 Wokwi Project Links
+This is a list of links to the Wokwi examples presented in each chapter. These are based on the ESP32-C3 device and would need to be rewired for other devices. The Wokwi setup for the different devices can be also extracted from the VSCode projects. If you notice a template missing or would like to request one, feel free to submit a feature request.
+| Chapter | Example Link |
+| ------- | ------------ |
+| **CH 5 - GPIO** | [Blinky](https://wokwi.com/projects/391678247863083009)<br>[Button Controlled Blinking](https://wokwi.com/projects/391678361146008577)<br>[Button Press Counter](https://wokwi.com/projects/391678393219863553) |
+| **CH 6 - ADC** | [Simple Voltmeter](https://wokwi.com/projects/391678430405517313)<br>[Temperature Sensing](https://wokwi.com/projects/391678465337780225) |
+| **CH 7 - Timers & Counters** | [Timer Based Delay](https://wokwi.com/projects/391678495008295937)<br>[Real-Time Timer](https://wokwi.com/projects/391678635458788353) |
+| **CH 8 - PWM** | [LED Fading](https://wokwi.com/projects/391678663139101697) |
+| **CH 9 - Serial Communication** | [Console Printing](https://wokwi.com/projects/391678698454099969)<br>[Interacting with an I2C RTC](https://wokwi.com/projects/391678723554917377) |
+| **CH 10 - The Embassy Framework** | [Blinky](https://wokwi.com/projects/391678752889882625)<br>[Real-time Timer](https://wokwi.com/projects/391678776862429185)<br>[LED Cycling](https://wokwi.com/projects/391678800985971713)<br>[UART Echo](https://wokwi.com/projects/391678832909874177)|
 ## 🔌 Wiring Templates for End of Chapter Questions
-These are pre-wired templates to get you started with end of chapter questions. Questions that are not included would use exisiting book examples as templates. If you notice a template missing or would like to request one, feel free to submit a feature request. 
+These are pre-wired templates to get you started with end of chapter questions. Questions that are not included would use exisiting book examples as templates. These are based on the ESP32-C3 device and would need to be rewired for other devices. If you notice a template missing or would like to request one, feel free to submit a feature request. 
 
-|Device  |Dev Kit  |CH 5 <br> GPIO|CH 6 <br> ADCs |CH7 <br> Timers & Counters |CH8 <br> PWM |CH9 <br> Serial Comms|CH10 <br> Embassy|
-|--------|---------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------|---------------------------------------------------|
-|ESP32-C3|[ESP32-C3-DevKitM-1](https://docs.espressif.com/projects/esp-idf/en/latest/esp32c3/hw-reference/esp32c3/user-guide-devkitm-1.html)                             |[Q5](https://wokwi.com/projects/397210832311932929)<br>[Q6](https://wokwi.com/projects/397210887966166017)<br>[Q7 & Q8](https://wokwi.com/projects/397210935209768961)|[Q4](https://wokwi.com/projects/397211014469548033)<br>[Q5](https://wokwi.com/projects/397211055233995777)<br>[Q6 & Q7](https://wokwi.com/projects/397702807168989185)|[Q1](https://wokwi.com/projects/397211229389919233)|[Q4](https://wokwi.com/projects/397211366137888769)<br>[Q5](https://wokwi.com/projects/397211392956273665)<br>[Q6](https://wokwi.com/projects/397211424007755777)<br>[Q7](https://wokwi.com/projects/397211461042421761)|🤷‍♂️            |[Q6](https://wokwi.com/projects/397211545848127489)|
-|ESP32-C3|[ESP32-C3-DevKit-RUST-1](https://github.com/esp-rs/esp-rust-board/tree/v1.2)    |🚫 |🚫 |🚫 |🚫 |🚫 |🚫 |
-|ESP32-S2|[ESP32-S2-DevKitM-1](https://docs.espressif.com/projects/esp-idf/en/latest/esp32s2/hw-reference/esp32s2/user-guide-devkitm-1-v1.html)   |🚫 |🚫 |🚫 |🚫 |🚫 |🚫 |
-|ESP32-S3|[ESP32-S3-DevKitC-1](https://docs.espressif.com/projects/esp-idf/en/latest/esp32s3/hw-reference/esp32s3/user-guide-devkitc-1.html)  |🚫 |🚫 |🚫 |🚫 |🚫 |🚫|
-|ESP32   |[ESP32-Dev-KitC](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/hw-reference/esp32/get-started-devkitc.html#get-started-esp32-devkitc-board-front)|🚫|🚫|🚫|🚫|🚫|🚫|
+| Chapter | Question Links |
+| ------- | ---------------------- |
+| **CH 5 - GPIO** | [Q5](https://wokwi.com/projects/397210832311932929)<br>[Q6](https://wokwi.com/projects/397210887966166017)<br>[Q7 & Q8](https://wokwi.com/projects/397210935209768961)| 
+| **CH 6 - ADC** | [Q4](https://wokwi.com/projects/397211014469548033)<br>[Q5](https://wokwi.com/projects/397211055233995777)<br>[Q6 & Q7](https://wokwi.com/projects/397702807168989185) |
+| **CH 7 - Timers & Counters** | [Q1](https://wokwi.com/projects/397211229389919233) |
+| **CH 8 - PWM** | [Q4](https://wokwi.com/projects/397211366137888769)<br>[Q5](https://wokwi.com/projects/397211392956273665)<br>[Q6](https://wokwi.com/projects/397211424007755777)<br>[Q7](https://wokwi.com/projects/397211461042421761) |
+| **CH 9 - Serial Communication** | 🤷‍♂️ |
+| **CH 10 - The Embassy Framework** |[Q6](https://wokwi.com/projects/397211545848127489) |
 
 ## 🧑‍💻 Development Options
 
