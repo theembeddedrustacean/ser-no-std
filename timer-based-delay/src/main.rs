@@ -1,6 +1,6 @@
 /*
 Simplified Embedded Rust: ESP Core Library Edition
-Programming Timers & Counters - Timer-Based Delay Application Example
+Programming ADCs - Voltmeter Application Example
 */
 
 #![no_std]
@@ -8,49 +8,46 @@ Programming Timers & Counters - Timer-Based Delay Application Example
 
 use esp_backtrace as _;
 use esp_hal::{
-    gpio::{Io, Level, Output},
-    prelude::*,
-    timer::timg::TimerGroup,
+    analog::adc::{Adc, AdcConfig, Attenuation},
+    delay::Delay,
+    main,
 };
+use esp_println::println;
 
-#[entry]
+#[main]
 fn main() -> ! {
-    // Take the peripherals
+    // Take Peripherals & Configure Clocks
     let peripherals =
         esp_hal::init(esp_hal::Config::default());
 
-    // Instantiate and Create Handle for IO
-    let io = Io::new(peripherals.GPIO, peripherals.IO_MUX);
+    // Create Delay Provider
+    let delay = Delay::new();
 
-    // Instantiate Output Pin for LED Control
-    let mut led_pin =
-        Output::new(io.pins.gpio0, Level::Low);
+    // Create handle for ADC configuration parameters
+    let mut adc_config = AdcConfig::new();
 
-    // Instantiate Timer Group 0
-    let timer_group0 = TimerGroup::new(peripherals.TIMG0);
+    // Configure ADC pin
+    let mut adc_pin = adc_config
+        .enable_pin(peripherals.GPIO0, Attenuation::_11dB);
 
-    // Instantiate Timer0 in Timer Group 0
-    let timer0 = timer_group0.timer0;
-
-    // Activate Counter to Start Counting
-    timer0.start();
-
-    // Capture Start Time
-    let mut start = timer0.now();
+    // Create ADC Driver
+    let mut adc = Adc::new(peripherals.ADC1, adc_config);
 
     loop {
-        // Check if Timer Reached or Exceeded 1 second
-        if timer0
-            .now()
-            .checked_duration_since(start)
-            .unwrap()
-            .to_secs()
-            >= 1
-        {
-            // Toggle LED
-            led_pin.toggle();
-            // Reset Counter
-            start = timer0.now();
-        }
+        // Get ADC Reading
+        let sample: u16 =
+            adc.read_oneshot(&mut adc_pin).unwrap();
+
+        // Convert to Voltage
+        let voltage: u32 = sample as u32 * 3300 / 4095;
+
+        // Print the temperature output
+        println!(
+            "Raw Reading: {}, Voltage Reading: {}mV",
+            sample, voltage
+        );
+
+        // Wait half a second before next sample
+        delay.delay_millis(500_u32);
     }
 }

@@ -5,7 +5,7 @@ use core::sync::atomic::{AtomicU32, Ordering};
 use embassy_executor::Spawner;
 use embassy_time::{Duration, Timer};
 use esp_backtrace as _;
-use esp_hal::{prelude::*, timer::timg::TimerGroup};
+use esp_hal::timer::timg::TimerGroup;
 use esp_println::println;
 
 static SHARED: AtomicU32 = AtomicU32::new(0);
@@ -23,7 +23,7 @@ async fn async_task() {
     }
 }
 
-#[main]
+#[esp_hal_embassy::main]
 async fn main(spawner: Spawner) {
     // Initialize and create handle for devicer peripherals
     let peripherals =

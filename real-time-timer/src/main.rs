@@ -10,20 +10,19 @@ use core::cell::{Cell, RefCell};
 use critical_section::Mutex;
 use esp_backtrace as _;
 use esp_hal::{
-    delay::MicrosDurationU64,
-    peripherals::TIMG0,
-    prelude::*,
-    timer::timg::{Timer, Timer0, TimerGroup},
+    time::Duration,
+    timer::timg::{Timer, TimerGroup},
+    timer::Timer as TimerTrait,
+    {handler, main},
 };
 use esp_println::println;
 
-// Create a Global Variable for timer to pass between threads.
-static G_TIMER: Mutex<
-    RefCell<
-        Option<Timer<Timer0<TIMG0>, esp_hal::Blocking>>,
-    >,
-> = Mutex::new(RefCell::new(None));
-// Create a Global Variable for a FLAG to pass between threads.
+// Create a Global Variable for timer to pass between
+// threads.
+static G_TIMER: Mutex<RefCell<Option<Timer>>> =
+    Mutex::new(RefCell::new(None));
+// Create a Global Variable for a FLAG to pass between
+// threads.
 static G_FLAG: Mutex<Cell<bool>> =
     Mutex::new(Cell::new(false));
 
@@ -38,24 +37,19 @@ struct Time {
 fn tg0_t0_level() {
     // Start a Critical Section
     critical_section::with(|cs| {
-        // Clear Timer Interrupt Pending Flag
+        // Clear Interrupt Flag For Interrupts to Occur
+        // again
         G_TIMER
             .borrow_ref_mut(cs)
             .as_mut()
             .unwrap()
             .clear_interrupt();
-        // Re-activate Timer Alarm For Interrupts to Occur again
-        G_TIMER
-            .borrow_ref_mut(cs)
-            .as_mut()
-            .unwrap()
-            .set_alarm_active(true);
         // Assert G_FLAG indicating a press button happened
         G_FLAG.borrow(cs).set(true);
     });
 }
 
-#[entry]
+#[main]
 fn main() -> ! {
     // Take Peripherals
     let peripherals =
@@ -68,19 +62,18 @@ fn main() -> ! {
     let timer0 = timer_group0.timer0;
 
     // Interrupt Configuration
-    // Step 1: Configure timer to trigger an interrupt every second
-    // Load count equivalent to 1 second
+    // Step 1: Configure timer to trigger an interrupt every
+    // second Load count equivalent to 1 second
     timer0
-        .load_value(MicrosDurationU64::micros(1_000_000))
+        .load_value(Duration::from_micros(1_000_000))
         .unwrap();
-    // Enable Alarm to generate interrupts
-    timer0.set_alarm_active(true);
-    // Activate counter
-    timer0.set_counter_active(true);
-    // Step 2: Attach Interrupt and Start listening for timer events
+    // Step 2: Attach & Enable Interrupt and then Start
+    // timer
     timer0.set_interrupt_handler(tg0_t0_level);
-    timer0.listen();
-    // Step 3: Now that input is configured, move the input pin to the global context
+    timer0.enable_interrupt(true);
+    timer0.start();
+    // Step 3: Now that input is configured, move the timer
+    // to the global context
     critical_section::with(|cs| {
         G_TIMER.borrow_ref_mut(cs).replace(timer0)
     });

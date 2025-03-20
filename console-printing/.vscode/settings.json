@@ -1,4 +1,0 @@
-{
-    "rust-analyzer.cargo.target": "xtensa-esp32-none-elf",
-    "rust-analyzer.check.allTargets": false,
-}

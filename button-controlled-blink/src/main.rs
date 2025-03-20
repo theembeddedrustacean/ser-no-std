@@ -7,24 +7,34 @@ Programming GPIO - Button Controlled Blinking Application Example
 #![no_main]
 
 use esp_backtrace as _;
-use esp_hal::{
-    gpio::{Input, Io, Level, Output, Pull},
-    prelude::*,
+use esp_hal::gpio::{
+    DriveMode, Input, InputConfig, Level, Output,
+    OutputConfig, Pull,
 };
+use esp_hal::main;
 
-#[entry]
+#[main]
 fn main() -> ! {
     // Take Peripherals
-    let peripherals = esp_hal::init(esp_hal::Config::default());
+    let peripherals =
+        esp_hal::init(esp_hal::Config::default());
 
-    // Instantiate and Create Handle for IO
-    let io = Io::new(peripherals.GPIO, peripherals.IO_MUX);
+    // Instantiate and Create Handle for LED output & Button
+    let led_config = OutputConfig::default()
+        .with_drive_mode(DriveMode::PushPull);
+    let button_config =
+        InputConfig::default().with_pull(Pull::Up);
 
-    // Instantiate and Create Handle for LED output & Button Input
-    let mut led = Output::new(io.pins.gpio4, Level::High);
-    let button = Input::new(io.pins.gpio0, Pull::Up);
+    let mut led = Output::new(
+        peripherals.GPIO4,
+        Level::High,
+        led_config,
+    );
+    let button =
+        Input::new(peripherals.GPIO0, button_config);
 
-    // Create and initialize a delay variable to manage delay loop
+    // Create and initialize a delay variable to manage
+    // value
     let mut blinkdelay = 1_000_000_u32;
 
     // Initialize LED to on or off
@@ -35,9 +45,11 @@ fn main() -> ! {
         for _i in 1..blinkdelay {
             // Check if button got pressed
             if button.is_low() {
-                // If button pressed decrease the delay value
+                // If button pressed decrease the delay
+                // value
                 blinkdelay = blinkdelay - 2_5000_u32;
-                // If updated delay value reaches zero then reset it back to starting value
+                // If updated delay value reaches zero then
+                // reset it back to starting value
                 if blinkdelay < 2_5000 {
                     blinkdelay = 1_000_000_u32;
                 }

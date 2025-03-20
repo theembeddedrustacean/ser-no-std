@@ -6,7 +6,7 @@ use embassy_sync::blocking_mutex::raw::CriticalSectionRawMutex;
 use embassy_sync::pubsub::PubSubChannel;
 use embassy_time::{Duration, Timer};
 use esp_backtrace as _;
-use esp_hal::{prelude::*, timer::timg::TimerGroup};
+use esp_hal::timer::timg::TimerGroup;
 use esp_println::println;
 
 //Declare a pubsub channel with a capcity of 2 and 1 subscriber and 2 publishers
@@ -36,7 +36,7 @@ async fn async_task_two() {
     }
 }
 
-#[main]
+#[esp_hal_embassy::main]
 async fn main(spawner: Spawner) {
     // Initialize and create handle for devicer peripherals
     let peripherals =

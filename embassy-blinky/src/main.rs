@@ -10,7 +10,7 @@ use embassy_executor::Spawner;
 use embassy_time::{Duration, Timer};
 use esp_backtrace as _;
 use esp_hal::{
-    gpio::{Io, Level, Output},
+    gpio::{Level, Output, OutputConfig},
     timer::timg::TimerGroup,
 };
 
@@ -25,8 +25,12 @@ async fn main(_spawner: Spawner) {
     esp_hal_embassy::init(timg0.timer0);
 
     // Setup and Configure LED Output Pin
-    let io = Io::new(peripherals.GPIO, peripherals.IO_MUX);
-    let mut led = Output::new(io.pins.gpio0, Level::High);
+    let led_config = OutputConfig::default();
+    let mut led = Output::new(
+        peripherals.GPIO0,
+        Level::High,
+        led_config,
+    );
 
     loop {
         // Turn on LED
