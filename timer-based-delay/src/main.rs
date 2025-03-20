@@ -8,23 +8,25 @@ Programming Timers & Counters - Timer-Based Delay Application Example
 
 use esp_backtrace as _;
 use esp_hal::{
-    gpio::{Io, Level, Output},
-    prelude::*,
+    gpio::{Level, Output, OutputConfig},
+    main,
     timer::timg::TimerGroup,
+    timer::Timer,
 };
 
-#[entry]
+#[main]
 fn main() -> ! {
     // Take the peripherals
     let peripherals =
         esp_hal::init(esp_hal::Config::default());
 
-    // Instantiate and Create Handle for IO
-    let io = Io::new(peripherals.GPIO, peripherals.IO_MUX);
-
-    // Instantiate Output Pin for LED Control
-    let mut led_pin =
-        Output::new(io.pins.gpio0, Level::Low);
+    // Instantiate & Configure Output Pin for LED Control
+    let led_pin_config = OutputConfig::default();
+    let mut led_pin = Output::new(
+        peripherals.GPIO0,
+        Level::Low,
+        led_pin_config,
+    );
 
     // Instantiate Timer Group 0
     let timer_group0 = TimerGroup::new(peripherals.TIMG0);
@@ -40,13 +42,7 @@ fn main() -> ! {
 
     loop {
         // Check if Timer Reached or Exceeded 1 second
-        if timer0
-            .now()
-            .checked_duration_since(start)
-            .unwrap()
-            .to_secs()
-            >= 1
-        {
+        if start.elapsed().as_secs() >= 1 {
             // Toggle LED
             led_pin.toggle();
             // Reset Counter

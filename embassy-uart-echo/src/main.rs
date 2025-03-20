@@ -13,15 +13,14 @@ use embassy_sync::{
 };
 use esp_backtrace as _;
 use esp_hal::{
-    gpio::Io,
-    peripherals::UART0,
     timer::timg::TimerGroup,
     uart::{
-        config::{AtCmdConfig, Config},
-        Uart, UartRx, UartTx,
+        AtCmdConfig, Config, RxConfig, Uart, UartRx,
+        UartTx,
     },
     Async,
 };
+use esp_println::println;
 
 // Read Buffer Size
 const READ_BUF_SIZE: usize = 64;
@@ -36,9 +35,7 @@ static DATAPIPE: Pipe<
 > = Pipe::new();
 
 #[embassy_executor::task]
-async fn uart_writer(
-    mut tx: UartTx<'static, UART0, Async>,
-) {
+async fn uart_writer(mut tx: UartTx<'static, Async>) {
     // Declare write buffer to store Tx characters
     let mut wbuf: [u8; READ_BUF_SIZE] =
         [0u8; READ_BUF_SIZE];
@@ -46,44 +43,32 @@ async fn uart_writer(
         // Read characters from pipe into write buffer
         DATAPIPE.read(&mut wbuf).await;
         // Transmit/echo buffer contents over UART
-        embedded_io_async::Write::write(&mut tx, &wbuf)
-            .await
-            .unwrap();
+        println!("Sending Letter");
+        tx.write_async(&wbuf).await.unwrap();
         // Transmit a new line
-        embedded_io_async::Write::write(
-            &mut tx,
-            &[0x0D, 0x0A],
-        )
-        .await
-        .unwrap();
+        println!("Sending New Line");
+        tx.write_async(&[0x0D, 0x0A]).await.unwrap();
         // Flush transmit buffer
-        embedded_io_async::Write::flush(&mut tx)
-            .await
-            .unwrap();
+        println!("Flushing");
+        tx.flush_async().await.unwrap();
     }
 }
 
 #[embassy_executor::task]
-async fn uart_reader(
-    mut rx: UartRx<'static, UART0, Async>,
-) {
+async fn uart_reader(mut rx: UartRx<'static, Async>) {
     // Declare read buffer to store Rx characters
     let mut rbuf: [u8; READ_BUF_SIZE] =
         [0u8; READ_BUF_SIZE];
     loop {
-        // Read characters from UART into read buffer until EOT
-        let r = embedded_io_async::Read::read(
-            &mut rx,
-            &mut rbuf[0..],
-        )
-        .await;
+        // Read characters from UART into read buffer
+        let r = rx.read_async(&mut rbuf[0..]).await;
         match r {
             Ok(len) => {
                 // If read succeeds then write recieved characters to pipe
                 DATAPIPE.write_all(&rbuf[..len]).await;
             }
             Err(e) => {
-                esp_println::println!("RX Error: {:?}", e)
+                println!("RX Error: {:?}", e)
             }
         }
     }
@@ -94,28 +79,28 @@ async fn main(spawner: Spawner) {
     let peripherals =
         esp_hal::init(esp_hal::Config::default());
 
-    // Instantiate GPIO pins for UART
-    let io = Io::new(peripherals.GPIO, peripherals.IO_MUX);
-    let (tx_pin, rx_pin) =
-        (io.pins.gpio21, io.pins.gpio20);
-
     // Initalize embassy executor
     let timg0 = TimerGroup::new(peripherals.TIMG0);
     esp_hal_embassy::init(timg0.timer0);
 
+    // Instantiate GPIO pins for UART
+    let (tx_pin, rx_pin) =
+        (peripherals.GPIO21, peripherals.GPIO20);
+
     // Initialize and configure UART0
-    let config = Config::default()
-        .rx_fifo_full_threshold(READ_BUF_SIZE as u16);
-    let mut uart0 = Uart::new_async_with_config(
-        peripherals.UART0,
-        config,
-        tx_pin,
-        rx_pin,
-    )
-    .unwrap();
-    uart0.set_at_cmd(AtCmdConfig::new(
-        None, None, None, AT_CMD, None,
-    ));
+    let config = Config::default().with_rx(
+        RxConfig::default().with_fifo_full_threshold(
+            READ_BUF_SIZE as u16,
+        ),
+    );
+    let mut uart0 = Uart::new(peripherals.UART0, config)
+        .unwrap()
+        .with_tx(tx_pin)
+        .with_rx(rx_pin)
+        .into_async();
+    uart0.set_at_cmd(
+        AtCmdConfig::default().with_cmd_char(AT_CMD),
+    );
 
     // Split UART0 to create seperate Tx and Rx handles
     let (rx, tx) = uart0.split();

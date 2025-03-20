@@ -8,26 +8,8 @@ edition = "2021"
 license = "MIT OR Apache-2.0"
 
 [dependencies]
-esp-backtrace = { version = "0.14.1", features = [
-    "esp32c3",
-    "exception-handler",
-    "panic-handler",
-    "println",
-] }
-esp-hal = { version = "0.21.0", features = ["esp32c3"] }
-esp-println = { version = "0.12.0", features = ["esp32c3", "log"] }
-log = { version = "0.4.20" }
-libm = "0.2.8"
-[profile.dev]
-# Rust debug is too slow. 
-# For debug builds always builds with some optimization
-opt-level = "s"
-
-[profile.release]
-codegen-units = 1        # LLVM can perform better optimizations using a single thread
-debug = 2
-debug-assertions = false
-incremental = false
-lto = 'fat'
-opt-level = 's'
-overflow-checks = false
+esp-hal = { workspace = true }
+esp-backtrace = { workspace = true }
+esp-println = { workspace = true }
+log = { workspace = true }
+libm = { workspace = true }

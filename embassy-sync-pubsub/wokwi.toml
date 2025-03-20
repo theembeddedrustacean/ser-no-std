@@ -1,5 +1,5 @@
 [wokwi]
 version = 1
 gdbServerPort = 3333
-elf = "target/riscv32imc-unknown-none-elf/debug/embassy-sync-pubsub"
-firmware = "target/riscv32imc-unknown-none-elf/debug/embassy-sync-pubsub"
+elf = "../target/riscv32imc-unknown-none-elf/debug/embassy-sync-pubsub"
+firmware = "../target/riscv32imc-unknown-none-elf/debug/embassy-sync-pubsub"

@@ -13,7 +13,10 @@ use embassy_sync::mutex::Mutex;
 use embassy_time::{Duration, Timer};
 use esp_backtrace as _;
 use esp_hal::{
-    gpio::{Input, Io, Level, Output, Pull},
+    gpio::{
+        Input, InputConfig, Level, Output, OutputConfig,
+        Pull,
+    },
     timer::timg::TimerGroup,
 };
 use portable_atomic::AtomicU32;
@@ -35,27 +38,69 @@ async fn main(spawner: Spawner) {
     let timg0 = TimerGroup::new(peripherals.TIMG0);
     esp_hal_embassy::init(timg0.timer0);
 
-    // Acquire Handle to IO
-    let io = Io::new(peripherals.GPIO, peripherals.IO_MUX);
     // Configure Delay Button to Pull Up input
-    let del_but = Input::new(io.pins.gpio3, Pull::Up);
+    let del_but_config =
+        InputConfig::default().with_pull(Pull::Up);
+    let del_but =
+        Input::new(peripherals.GPIO3, del_but_config);
     // Inner scope is so that once the mutex is written to, the MutexGuard is dropped, thus the
     // Mutex is released
     {
         *(BUTTON.lock().await) = Some(del_but);
     }
     // Configure LED Array Pins to Output & Store in Array
+    let led_array_config = OutputConfig::default();
     let mut leds: [Output; 10] = [
-        Output::new(io.pins.gpio1, Level::Low),
-        Output::new(io.pins.gpio10, Level::Low),
-        Output::new(io.pins.gpio19, Level::Low),
-        Output::new(io.pins.gpio18, Level::Low),
-        Output::new(io.pins.gpio4, Level::Low),
-        Output::new(io.pins.gpio5, Level::Low),
-        Output::new(io.pins.gpio6, Level::Low),
-        Output::new(io.pins.gpio7, Level::Low),
-        Output::new(io.pins.gpio8, Level::Low),
-        Output::new(io.pins.gpio9, Level::Low),
+        Output::new(
+            peripherals.GPIO1,
+            Level::Low,
+            led_array_config,
+        ),
+        Output::new(
+            peripherals.GPIO10,
+            Level::Low,
+            led_array_config,
+        ),
+        Output::new(
+            peripherals.GPIO19,
+            Level::Low,
+            led_array_config,
+        ),
+        Output::new(
+            peripherals.GPIO18,
+            Level::Low,
+            led_array_config,
+        ),
+        Output::new(
+            peripherals.GPIO4,
+            Level::Low,
+            led_array_config,
+        ),
+        Output::new(
+            peripherals.GPIO5,
+            Level::Low,
+            led_array_config,
+        ),
+        Output::new(
+            peripherals.GPIO6,
+            Level::Low,
+            led_array_config,
+        ),
+        Output::new(
+            peripherals.GPIO7,
+            Level::Low,
+            led_array_config,
+        ),
+        Output::new(
+            peripherals.GPIO8,
+            Level::Low,
+            led_array_config,
+        ),
+        Output::new(
+            peripherals.GPIO9,
+            Level::Low,
+            led_array_config,
+        ),
     ];
 
     // Spawn Button Press Task

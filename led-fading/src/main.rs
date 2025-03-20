@@ -9,14 +9,16 @@ Programming PWM - LED Fading Application Example
 use esp_backtrace as _;
 use esp_hal::{
     delay::Delay,
-    gpio::Io,
     ledc::{
-        channel, timer, LSGlobalClkSource, Ledc, LowSpeed,
+        channel, channel::ChannelIFace, timer,
+        timer::TimerIFace, LSGlobalClkSource, Ledc,
+        LowSpeed,
     },
-    prelude::*,
+    main,
+    time::Rate,
 };
 
-#[entry]
+#[main]
 fn main() -> ! {
     // Take Peripherals and Configure System Clocks
     let peripherals =
@@ -25,9 +27,8 @@ fn main() -> ! {
     // Instantiate delay abstraction
     let delay = Delay::new();
 
-    // Configure GPIO Pin to be used for LEDC peripheral
-    let io = Io::new(peripherals.GPIO, peripherals.IO_MUX);
-    let led = io.pins.gpio7;
+    // Instantiate GPIO Pin to be used for LEDC peripheral
+    let led = peripherals.GPIO7;
 
     // Create LEDC instance with low speed global clock
     let mut ledc = Ledc::new(peripherals.LEDC);
@@ -35,18 +36,18 @@ fn main() -> ! {
 
     // Configure LEDC timer
     let mut timer =
-        ledc.get_timer::<LowSpeed>(timer::Number::Timer0);
+        ledc.timer::<LowSpeed>(timer::Number::Timer0);
     timer
         .configure(timer::config::Config {
             duty: timer::config::Duty::Duty14Bit,
             clock_source: timer::LSClockSource::APBClk,
-            frequency: 1u32.kHz(),
+            frequency: Rate::from_khz(1u32),
         })
         .unwrap();
 
     // Configure LEDC Channel Attaching Timer and Pin
     let mut channel =
-        ledc.get_channel(channel::Number::Channel0, led);
+        ledc.channel(channel::Number::Channel0, led);
     channel
         .configure(channel::config::Config {
             timer: &timer,

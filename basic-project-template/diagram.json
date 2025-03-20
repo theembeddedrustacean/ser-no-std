@@ -1,8 +1,8 @@
 {
     "version": 1,
     "editor": "wokwi",
-    "author": "The Embedded Rustacean <166909466+theembeddedrustacean@users.noreply.github.com>",
-   "parts": [
+    "author": "{{authors}}",
+    "parts": [
         {
             "type": "board-esp32-c3-devkitm-1",
             "id": "esp",

@@ -10,29 +10,25 @@ use esp_backtrace as _;
 use esp_hal::{
     analog::adc::{Adc, AdcConfig, Attenuation},
     delay::Delay,
-    gpio::Io,
-    prelude::*,
+    main,
 };
 use esp_println::println;
 
-#[entry]
+#[main]
 fn main() -> ! {
     // Take Peripherals & Configure Clocks
     let peripherals =
         esp_hal::init(esp_hal::Config::default());
-    let delay = Delay::new();
 
-    // Instantiate and Create Handle for IO
-    let io = Io::new(peripherals.GPIO, peripherals.IO_MUX);
+    // Create Delay Provider
+    let delay = Delay::new();
 
     // Create handle for ADC configuration parameters
     let mut adc_config = AdcConfig::new();
 
-    // Configure ADC channel
-    let mut adc_pin = adc_config.enable_pin(
-        io.pins.gpio0,
-        Attenuation::Attenuation11dB,
-    );
+    // Configure ADC pin
+    let mut adc_pin = adc_config
+        .enable_pin(peripherals.GPIO0, Attenuation::_11dB);
 
     // Create ADC Driver
     let mut adc = Adc::new(peripherals.ADC1, adc_config);
