@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "author": "Apollo Labs",
+  "editor": "wokwi",
+  "parts": [
+    {
+      "type": "board-esp32-c3-devkitm-1",
+      "id": "esp",
+      "top": -0.3,
+      "left": -61.38,
+      "attrs": { "builder": "rust-nostd-esp" }
+    },
+    { "type": "wokwi-led", "id": "led1", "top": -42, "left": -130.6, "attrs": { "color": "red" } },
+    {
+      "type": "wokwi-led",
+      "id": "led2",
+      "top": -3.6,
+      "left": -159.4,
+      "attrs": { "color": "yellow" }
+    },
+    {
+      "type": "wokwi-led",
+      "id": "led3",
+      "top": 44.4,
+      "left": -188.2,
+      "attrs": { "color": "green" }
+    }
+  ],
+  "connections": [
+    [ "esp:TX", "$serialMonitor:RX", "", [] ],
+    [ "esp:RX", "$serialMonitor:TX", "", [] ],
+    [ "led1:A", "esp:2", "green", [ "v0" ] ],
+    [ "led2:A", "esp:3", "green", [ "v0" ] ],
+    [ "led3:A", "esp:0", "green", [ "v0" ] ],
+    [ "esp:GND.5", "led3:C", "black", [ "h0" ] ],
+    [ "led2:C", "esp:GND.5", "black", [ "v0" ] ],
+    [ "led1:C", "esp:GND.5", "black", [ "v0" ] ]
+  ],
+  "serialMonitor": { "display": "terminal", "convertEol": true },
+  "dependencies": {}
+}
