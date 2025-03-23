@@ -21,16 +21,9 @@ This is a list of the project links containing the example source code for the E
 | ESP32    | [ESP32-Dev-KitC](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/hw-reference/esp32/get-started-devkitc.html#get-started-esp32-devkitc-board-front) | [ESP32 Branch](https://github.com/theembeddedrustacean/ser-no-std/tree/esp32dkc) |
 
 ## 🔌 Project Templates for End of Chapter Questions
-These are pre-wired templates to get you started with end of chapter questions. Questions that are not included would use exisiting book examples as templates. These are based on the ESP32-C3 device and would need to be rewired for other devices. If you notice a template missing or would like to request one, feel free to submit a feature request. 
+Pre-wired project templates are provided to get you started with end of chapter questions. You can access all templates in the [End of Chapter Questions Branch](https://github.com/theembeddedrustacean/ser-no-std/tree/eoc_templates).
 
-| Chapter | Question Links |
-| ------- | ---------------------- |
-| **CH 5 - GPIO** | [Q5](https://wokwi.com/projects/397210832311932929)<br>[Q6](https://wokwi.com/projects/397210887966166017)<br>[Q7 & Q8](https://wokwi.com/projects/397210935209768961)| 
-| **CH 6 - ADC** | [Q4](https://wokwi.com/projects/397211014469548033)<br>[Q5](https://wokwi.com/projects/397211055233995777)<br>[Q6 & Q7](https://wokwi.com/projects/397702807168989185) |
-| **CH 7 - Timers & Counters** | [Q1](https://wokwi.com/projects/397211229389919233) |
-| **CH 8 - PWM** | [Q4](https://wokwi.com/projects/397211366137888769)<br>[Q5](https://wokwi.com/projects/397211392956273665)<br>[Q6](https://wokwi.com/projects/397211424007755777)<br>[Q7](https://wokwi.com/projects/397211461042421761) |
-| **CH 9 - Serial Communication** | 🤷‍♂️ |
-| **CH 10 - The Embassy Framework** |[Q6](https://wokwi.com/projects/397211545848127489) |
+Questions that are not included would use exisiting book examples as templates. These are based on the ESP32-C3 device and would need to be rewired for other devices. If you notice a template missing or would like to request one, feel free to submit a feature request.
 
 ## 🧑‍💻 Development Options
 > ⚠️ As of January 2025, Wowki stopped supporting the `std` builder on it's web interface. While the `no_std` builder is still supported on the web interface, an alternative beginner friendly option of using DevContainers and Wokwi with VSCode is introduced. With a few clicks in GitHub, Devcontainers enable the spawning of a full environment with all the book examples in a single workspace. Still, no need for any hardware and knowledge of Devcontainers is not required.
