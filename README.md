@@ -69,12 +69,12 @@ When creating your own projects from scratch, it is highly recommended that you 
 To install `cargo-generate` run the following command:
 
 ```shell
-cargo install cargo-generate
+cargo install esp-generate
 ```
 Afterward, to generate a `no-std` template run the following command:
 
 ```shell
-cargo generate esp-rs/esp-template
+esp-generate --chip=esp32c3 your-project
 ```
 
 ### 3. 🏡🔮 Local Editor with Wokwi
