@@ -1,30 +1,6 @@
 [workspace]
 resolver = "2"
-members = [
-    "basic-project-template",
-    "blinky",
-    "button-controlled-blink",
-    "button-press-counter",
-    "uart-loopback",
-    "embassy-blinky",
-    "embassy-led-cycling",
-    "embassy-real-time-timer",
-    "embassy-sync-async-mutex",
-    "embassy-sync-atomic",
-    "embassy-sync-blocking-mutex",
-    "embassy-sync-channel",
-    "embassy-sync-pubsub",
-    "embassy-sync-signal",
-    "embassy-template",
-    "embassy-uart-echo",
-    "i2c-real-time-clock",
-    "i2c-scanner",
-    "led-fading",
-    "real-time-timer",
-    "temperature-sensing",
-    "timer-based-delay",
-    "voltmeter",
-]
+members = ["alarm-clock"]
 
 
 [workspace.dependencies]
