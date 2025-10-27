@@ -49,7 +49,7 @@ rustup toolchain install nightly --component rust-src
 Run the following command in a terminal window:
 
 ```shell
-rustup target add riscv32imc -unknown -none -elf
+rustup target add riscv32imc-unknown-none-elf
 ```
 
 #### d) **Install `espflash`**: 
