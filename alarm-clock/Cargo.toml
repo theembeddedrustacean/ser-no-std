@@ -7,4 +7,10 @@ edition = "2021"
 esp-hal = { workspace = true }
 esp-backtrace = { workspace = true }
 esp-println = { workspace = true }
-log = { workspace = true }
+embassy-executor = { workspace = true }
+embassy-time = { workspace = true }
+esp-bootloader-esp-idf = { workspace = true }
+esp-rtos = { workspace = true }
+embassy-sync = { workspace = true }
+bitmask-enum = "2.2.5"
+embassy-futures = "0.1.2"

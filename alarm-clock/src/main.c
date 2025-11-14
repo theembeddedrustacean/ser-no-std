@@ -90,17 +90,36 @@ void chip_reset(void *user_data, pin_t pin, uint32_t value) {
 */
 void incrementPortCount(chip_state_t* chip) {
   if (chip->auto_increment) {
-    chip->i2c_portcount = (chip->i2c_portcount + 1) % 3; // Cycle through 0, 1, 2
-    chip->current_register = (chip->current_register & 0xFC) | (chip->i2c_portcount & 0x03);
+    uint8_t current_port = (chip->current_register & 0x03);
+    uint8_t next_port = (current_port + 1) % 3; // Cycle 0 -> 1 -> 2 -> 0
+    chip->current_register = (chip->current_register & 0xFC) | next_port; // Update port bits
   }
 }
-
 
 /*
   I2C connection callback.
   Will tell up the device address and whether this is a read or write 
   operation
 */
+// bool on_i2c_connect(void *user_data, uint32_t address, bool read) {
+//   CHIPSTATE_FROM(user_data);
+
+//   if (address != chip->address) {
+//     printf("Getting connects for address 0x%x but am at 0x%x\n", address, chip->address);
+//     return false; // NACK if address doesn't match
+//   }
+
+//   chip->i2c_portcount = 0;
+//   chip->current_register = 0; // Default to Input Port 0
+//   chip->auto_increment = true; // Default AI bit to 1
+
+//   if (read) {
+//     printf("Read: reset INT flag\n");
+//     chip->lastReadValue = chip->inputValue;
+//     interruptFlagOff(chip);
+//   }
+//   return true; // ACK
+// }
 bool on_i2c_connect(void *user_data, uint32_t address, bool read) {
   CHIPSTATE_FROM(user_data);
 
@@ -109,14 +128,17 @@ bool on_i2c_connect(void *user_data, uint32_t address, bool read) {
     return false; // NACK if address doesn't match
   }
 
-  chip->i2c_portcount = 0;
-  chip->current_register = 0; // Default to Input Port 0
-  chip->auto_increment = true; // Default AI bit to 1
-
   if (read) {
+    // This is a READ operation.
+    // DO NOT reset the current_register. It was set by the previous write.
     printf("Read: reset INT flag\n");
     chip->lastReadValue = chip->inputValue;
     interruptFlagOff(chip);
+  } else {
+    // This is a WRITE operation. Reset pointers.
+    chip->i2c_portcount = 0;
+    chip->current_register = 0; // Default to Input Port 0
+    chip->auto_increment = true; // Default AI bit to 1
   }
   return true; // ACK
 }
@@ -129,7 +151,7 @@ uint8_t on_i2c_read(void *user_data) {
   uint8_t retVal = 0;
 
   uint8_t reg_bank = (chip->current_register & 0x0C) >> 2; // Bits B3:B2
-  uint8_t port = chip->i2c_portcount;
+  uint8_t port = (chip->current_register & 0x03); // Use B1:B0 from stored command
 
   if (reg_bank == 0x00) { // Input Port
     retVal = ((chip->inputValue >> (port * 8)) & 0xff);
@@ -164,7 +186,8 @@ bool on_i2c_write(void *user_data, uint8_t data) {
   }
 
   uint8_t reg_bank = (chip->current_register & 0x0C) >> 2; // Bits B3:B2
-  uint8_t port = chip->i2c_portcount;
+  // uint8_t port = chip->i2c_portcount;
+  uint8_t port = (chip->current_register & 0x03); // Use B1:B0 from stored command
   uint32_t shift = port * 8;
 
   if (reg_bank == 0x00) { // Input Port (read-only, ignore writes)
@@ -209,8 +232,6 @@ void on_i2c_disconnect(void *user_data) {
   chip->i2c_portcount = 0;
   chip->current_register = 0;
 }
-
-
 
 
 /*  I2C address management
@@ -356,10 +377,15 @@ void chip_init() {
   chip->i2c_config.address = chip->address;
   chip->i2c_dev = i2c_init(&(chip->i2c_config));
 
+  // Read initial pin states
+  chip->inputValue = readInputsValue(chip);
+
   printf("I2C initialized @ address 0x%x\n", chip->address);
 
   interruptFlagOff(chip);
 }
+
+
 
 
 
