@@ -18,6 +18,8 @@ use esp_hal::{
     time::Rate,
 };
 
+esp_bootloader_esp_idf::esp_app_desc!();
+
 #[main]
 fn main() -> ! {
     // Take Peripherals and Configure System Clocks
@@ -52,8 +54,7 @@ fn main() -> ! {
         .configure(channel::config::Config {
             timer: &timer,
             duty_pct: 0,
-            pin_config:
-                channel::config::PinConfig::PushPull,
+            drive_mode: esp_hal::gpio::DriveMode::PushPull,
         })
         .unwrap();
 

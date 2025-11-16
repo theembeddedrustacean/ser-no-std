@@ -14,6 +14,8 @@ use esp_hal::{
     timer::Timer,
 };
 
+esp_bootloader_esp_idf::esp_app_desc!();
+
 #[main]
 fn main() -> ! {
     // Take the peripherals

@@ -17,9 +17,12 @@ use esp_hal::{
         Input, InputConfig, Level, Output, OutputConfig,
         Pull,
     },
+    interrupt::software::SoftwareInterruptControl,
     timer::timg::TimerGroup,
 };
 use portable_atomic::AtomicU32;
+
+esp_bootloader_esp_idf::esp_app_desc!();
 
 // Global Variable to Control LED Rotation Speed
 static BLINK_DELAY: AtomicU32 = AtomicU32::new(200_u32);
@@ -28,7 +31,7 @@ type ButtonType =
     Mutex<CriticalSectionRawMutex, Option<Input<'static>>>;
 static BUTTON: ButtonType = Mutex::new(None);
 
-#[esp_hal_embassy::main]
+#[esp_rtos::main]
 async fn main(spawner: Spawner) {
     // Take Peripherals
     let peripherals =
@@ -36,7 +39,13 @@ async fn main(spawner: Spawner) {
 
     // Initalize embassy executor
     let timg0 = TimerGroup::new(peripherals.TIMG0);
-    esp_hal_embassy::init(timg0.timer0);
+    let sw_int = SoftwareInterruptControl::new(
+        peripherals.SW_INTERRUPT,
+    );
+    esp_rtos::start(
+        timg0.timer0,
+        sw_int.software_interrupt0,
+    );
 
     // Configure Delay Button to Pull Up input
     let del_but_config =

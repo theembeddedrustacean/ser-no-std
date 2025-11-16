@@ -17,6 +17,8 @@ use esp_hal::{
 };
 use esp_println::println;
 
+esp_bootloader_esp_idf::esp_app_desc!();
+
 // Create a Global Variable for timer to pass between threads.
 static G_TIMER: Mutex<RefCell<Option<Timer>>> =
     Mutex::new(RefCell::new(None));

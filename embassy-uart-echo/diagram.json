@@ -13,8 +13,7 @@
   ],
   "connections": [
     [ "esp:TX", "$serialMonitor:RX", "", [] ],
-    [ "esp:RX", "$serialMonitor:TX", "", [] ],
-    [ "esp:5", "esp:6", "green", [ "h12.33", "v-10.49" ] ]
+    [ "esp:RX", "$serialMonitor:TX", "", [] ]
   ],
   "serialMonitor": { "display": "terminal", "convertEol": true },
   "dependencies": {}

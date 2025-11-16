@@ -15,6 +15,8 @@ use esp_hal::{
 use esp_println::println;
 use libm::log;
 
+esp_bootloader_esp_idf::esp_app_desc!();
+
 #[main]
 fn main() -> ! {
     let peripherals =

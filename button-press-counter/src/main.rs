@@ -13,6 +13,8 @@ use esp_hal::gpio::{Event, Input, InputConfig, Io, Pull};
 use esp_hal::{handler, main};
 use esp_println::println;
 
+esp_bootloader_esp_idf::esp_app_desc!();
+
 // Create a Global Variable for a GPIO Peripheral to pass
 // around between threads.
 static G_PIN: Mutex<RefCell<Option<Input>>> =

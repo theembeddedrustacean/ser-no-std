@@ -13,6 +13,7 @@ use embassy_sync::{
 };
 use esp_backtrace as _;
 use esp_hal::{
+    interrupt::software::SoftwareInterruptControl,
     timer::timg::TimerGroup,
     uart::{
         AtCmdConfig, Config, RxConfig, Uart, UartRx,
@@ -21,6 +22,8 @@ use esp_hal::{
     Async,
 };
 use esp_println::println;
+
+esp_bootloader_esp_idf::esp_app_desc!();
 
 // Read Buffer Size
 const READ_BUF_SIZE: usize = 64;
@@ -74,14 +77,20 @@ async fn uart_reader(mut rx: UartRx<'static, Async>) {
     }
 }
 
-#[esp_hal_embassy::main]
+#[esp_rtos::main]
 async fn main(spawner: Spawner) {
     let peripherals =
         esp_hal::init(esp_hal::Config::default());
 
     // Initalize embassy executor
     let timg0 = TimerGroup::new(peripherals.TIMG0);
-    esp_hal_embassy::init(timg0.timer0);
+    let sw_int = SoftwareInterruptControl::new(
+        peripherals.SW_INTERRUPT,
+    );
+    esp_rtos::start(
+        timg0.timer0,
+        sw_int.software_interrupt0,
+    );
 
     // Instantiate GPIO pins for UART
     let (tx_pin, rx_pin) =

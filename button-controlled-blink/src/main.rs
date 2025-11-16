@@ -7,31 +7,22 @@ Programming GPIO - Button Controlled Blinking Application Example
 #![no_main]
 
 use esp_backtrace as _;
-use esp_hal::gpio::{
-    DriveMode, Input, InputConfig, Level, Output,
-    OutputConfig, Pull,
-};
+use esp_hal::gpio::{DriveMode, Input, InputConfig, Level, Output, OutputConfig, Pull};
 use esp_hal::main;
+
+esp_bootloader_esp_idf::esp_app_desc!();
 
 #[main]
 fn main() -> ! {
     // Take Peripherals
-    let peripherals =
-        esp_hal::init(esp_hal::Config::default());
+    let peripherals = esp_hal::init(esp_hal::Config::default());
 
     // Instantiate and Create Handle for LED output & Button
-    let led_config = OutputConfig::default()
-        .with_drive_mode(DriveMode::PushPull);
-    let button_config =
-        InputConfig::default().with_pull(Pull::Up);
+    let led_config = OutputConfig::default().with_drive_mode(DriveMode::PushPull);
+    let button_config = InputConfig::default().with_pull(Pull::Up);
 
-    let mut led = Output::new(
-        peripherals.GPIO4,
-        Level::High,
-        led_config,
-    );
-    let button =
-        Input::new(peripherals.GPIO0, button_config);
+    let mut led = Output::new(peripherals.GPIO4, Level::High, led_config);
+    let button = Input::new(peripherals.GPIO0, button_config);
 
     // Create and initialize a delay variable to manage
     // value

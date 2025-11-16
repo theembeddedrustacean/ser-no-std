@@ -16,6 +16,8 @@ use esp_hal::{
 use esp_println::println;
 use nobcd::BcdNumber;
 
+esp_bootloader_esp_idf::esp_app_desc!();
+
 const DS1307_ADDR: u8 = 0x68;
 
 #[main]

@@ -10,18 +10,16 @@ use esp_backtrace as _;
 use esp_hal::{
     delay::Delay,
     main,
-    uart::{
-        ClockSource, Config, DataBits, Parity, StopBits,
-        Uart,
-    },
+    uart::{ClockSource, Config, DataBits, Parity, StopBits, Uart},
 };
 use esp_println::println;
+
+esp_bootloader_esp_idf::esp_app_desc!();
 
 #[main]
 fn main() -> ! {
     // Configure Peripherals and System Clocks
-    let peripherals =
-        esp_hal::init(esp_hal::Config::default());
+    let peripherals = esp_hal::init(esp_hal::Config::default());
 
     // Create a Delay abstraction
     let delay = Delay::new();
@@ -35,11 +33,10 @@ fn main() -> ! {
         .with_clock_source(ClockSource::Apb);
 
     // Instantiate a UART Driver
-    let mut loopback =
-        Uart::new(peripherals.UART1, uart_config)
-            .unwrap()
-            .with_tx(peripherals.GPIO5)
-            .with_rx(peripherals.GPIO6);
+    let mut loopback = Uart::new(peripherals.UART1, uart_config)
+        .unwrap()
+        .with_tx(peripherals.GPIO5)
+        .with_rx(peripherals.GPIO6);
 
     // This line is for Wokwi only so that the console
     // output is formatted correctly
