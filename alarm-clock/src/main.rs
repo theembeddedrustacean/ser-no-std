@@ -4,22 +4,18 @@
 use bitmask_enum::bitmask;
 use core::cell::RefCell;
 use embassy_executor::Spawner;
-use embassy_futures::select::select;
 use embassy_sync::blocking_mutex::{raw::CriticalSectionRawMutex, Mutex};
-use embassy_sync::channel::Channel;
 use embassy_time::{Duration, Instant, Timer};
 use esp_backtrace as _;
 use esp_hal::i2c::master::{Config as I2cConfig, I2c};
 use esp_hal::interrupt::software::SoftwareInterruptControl;
-use esp_hal::peripherals::ADC1;
 use esp_hal::timer::timg::TimerGroup;
 use esp_hal::Blocking;
 
 use esp_backtrace as _;
 use esp_hal::gpio::{Input, InputConfig, Level, Output, OutputConfig, Pull};
 use esp_hal::ledc::{
-    channel, channel::ChannelIFace, timer, timer::Timer as LedcTimer, timer::TimerIFace,
-    LSGlobalClkSource, Ledc, LowSpeed,
+    channel, channel::ChannelIFace, timer, timer::TimerIFace, LSGlobalClkSource, Ledc, LowSpeed,
 };
 use esp_hal::time::Rate;
 use esp_println::println;
@@ -139,7 +135,7 @@ impl TimeKeeper {
     }
 }
 
-// TCA6424 Commands
+// TCA6424 Addresses
 const TCA6424_ADDR: u8 = 0x22; // I2C address of the TCA6424
 const IN_PORT0: u8 = 0x80; // Input Port 0 Register
 const IN_PORT1: u8 = 0x81; // Input Port 1 Register
@@ -201,9 +197,6 @@ pub enum IoExpPort2 {
 }
 
 // Direction Configuration for TCA6424
-// Port 0: All outputs except for SW7 and SW4
-// Port 1: All outputs except for DP, SegA, SegB, SegC
-// Port 2: All outputs except for Digit4, Digit3, Digit2, Digit
 const PORT0_DIR: u8 = 0xFF;
 const PORT1_DIR: u8 = 0xC0;
 const PORT2_DIR: u8 = 0x00;
@@ -493,14 +486,13 @@ impl<'a> ExpanderLedsDriver<'a> {
 
 pub struct ExpanderInputsDriver<'a> {
     i2c: &'a Mutex<CriticalSectionRawMutex, RefCell<Option<I2c<'static, Blocking>>>>,
-    ports: [u8; 2],
 }
 
 impl<'a> ExpanderInputsDriver<'a> {
     pub fn new(
         i2c: &'a Mutex<CriticalSectionRawMutex, RefCell<Option<I2c<'static, Blocking>>>>,
     ) -> Self {
-        let driver = ExpanderInputsDriver { i2c, ports: [0; 2] };
+        let driver = ExpanderInputsDriver { i2c };
         driver
     }
 
@@ -509,10 +501,10 @@ impl<'a> ExpanderInputsDriver<'a> {
             let mut i2c = i2c.borrow_mut();
             let i2c = i2c.as_mut().expect("I2C not initialized");
 
-            // 1. Set the initial output state FIRST.
+            // 1. Set the initial output state
             i2c.write(TCA6424_ADDR, &[OUT_PORT0, 0, 0x0F, 0])?;
 
-            // 2. Configure the directions SECOND.
+            // 2. Configure the directions
             i2c.write(
                 TCA6424_ADDR,
                 &[CONFIG_PORT0, PORT0_DIR, PORT1_DIR, PORT2_DIR],
@@ -522,9 +514,7 @@ impl<'a> ExpanderInputsDriver<'a> {
         Ok(())
     }
 
-    // Poll inputs and set events accordingly
-    pub fn poll_ports(&mut self) {
-        // Read Input Ports
+    pub fn update_events(&mut self) -> SystemEvents {
         let mut ports = [0u8; 2];
         self.i2c.lock(|i2c| {
             let mut i2c = i2c.borrow_mut();
@@ -536,41 +526,36 @@ impl<'a> ExpanderInputsDriver<'a> {
                 ports[i] = buf[0];
             }
         });
-        self.ports = ports;
-    }
-
-    pub fn update_events(&mut self) -> SystemEvents {
-        self.poll_ports();
 
         let events = SystemEvents {
-            time_but: if self.ports[0] & IoExpPort0::TimeButton.bits() == 0 {
+            time_but: if ports[0] & IoExpPort0::TimeButton.bits() == 0 {
                 Button::Pressed
             } else {
                 Button::Released
             },
-            alarm_but: if self.ports[0] & IoExpPort0::AlarmButton.bits() == 0 {
+            alarm_but: if ports[0] & IoExpPort0::AlarmButton.bits() == 0 {
                 Button::Pressed
             } else {
                 Button::Released
             },
-            hour_but: if self.ports[0] & IoExpPort0::HourButton.bits() == 0 {
+            hour_but: if ports[0] & IoExpPort0::HourButton.bits() == 0 {
                 Button::Pressed
             } else {
                 Button::Released
             },
-            min_but: if self.ports[0] & IoExpPort0::MinuteButton.bits() == 0 {
+            min_but: if ports[0] & IoExpPort0::MinuteButton.bits() == 0 {
                 Button::Pressed
             } else {
                 Button::Released
             },
             // Snooze button handled in separate GPIO driver
             snooze_but: Button::Released,
-            alarm_sw: if self.ports[0] & IoExpPort0::AlarmSwitchOn.bits() == 0 {
+            alarm_sw: if ports[0] & IoExpPort0::AlarmSwitchOn.bits() == 0 {
                 AlarmSwitch::On
             } else {
                 AlarmSwitch::Off
             },
-            fmt_sw: if self.ports[1] & IoExpPort1::FormatSwitch12.bits() == 0 {
+            fmt_sw: if ports[1] & IoExpPort1::FormatSwitch12.bits() == 0 {
                 FormatSwitch::H12
             } else {
                 FormatSwitch::H24
