@@ -20,19 +20,19 @@ use esp_hal::ledc::{
 use esp_hal::time::Rate;
 use esp_println::println;
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 enum Button {
     Pressed,
     Released,
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 enum AlarmSwitch {
     On,
     Off,
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 enum FormatSwitch {
     H12,
     H24,
@@ -144,17 +144,16 @@ const IN_PORT2: u8 = 0x82; // Input Port 2 Register
 const OUT_PORT0: u8 = 0x84; // Output Port 0 Register
 const OUT_PORT1: u8 = 0x85; // Output Port 1 Register
 const OUT_PORT2: u8 = 0x86; // Output Port 2 Register
-#[allow(dead_code)]
-const POL_INV_PORT0: u8 = 0x88; // Polarity Inversion Port 0 Register
-#[allow(dead_code)]
-const POL_INV_PORT1: u8 = 0x89; // Polarity Inversion Port 1 Register
-#[allow(dead_code)]
-const POL_INV_PORT2: u8 = 0x8A; // Polarity Inversion Port 2 Register
 const CONFIG_PORT0: u8 = 0x8C; // Configuration Port 0 Register
 #[allow(dead_code)]
 const CONFIG_PORT1: u8 = 0x8D; // Configuration Port 1 Register
 #[allow(dead_code)]
 const CONFIG_PORT2: u8 = 0x8E; // Configuration Port 2 Register
+
+// Debounce Parameters
+const DEBOUNCE_THRESHOLD: u8 = 5; // Number of consecutive reads
+const BUT_POLLING_INTERVAL: u64 = 5; // in milliseconds
+const STATE_POLLING_INTERVAL: u64 = DEBOUNCE_THRESHOLD as u64 * BUT_POLLING_INTERVAL; // in milliseconds
 
 // RTC Address
 const RTC_ADDR: u8 = 0x68;
@@ -442,46 +441,6 @@ impl<'a> ExpanderLedsDriver<'a> {
         })?;
         Ok(())
     }
-
-    pub fn led_on(&mut self) -> Result<(), esp_hal::i2c::master::Error> {
-        self.i2c.lock(|i2c| {
-            let mut i2c = i2c.borrow_mut();
-            let i2c = i2c.as_mut().expect("I2C not initialized");
-
-            // 1. READ
-            let mut rbuf = [0u8];
-            i2c.write_read(TCA6424_ADDR, &[OUT_PORT1], &mut rbuf)
-                .unwrap();
-            let current = rbuf[0];
-
-            // 2. MODIFY
-            let new = current | IoExpPort1::Led.bits();
-
-            // 3. WRITE
-            i2c.write(TCA6424_ADDR, &[OUT_PORT1, new])
-        })?;
-        Ok(())
-    }
-
-    pub fn led_off(&mut self) -> Result<(), esp_hal::i2c::master::Error> {
-        self.i2c.lock(|i2c| {
-            let mut i2c = i2c.borrow_mut();
-            let i2c = i2c.as_mut().expect("I2C not initialized");
-
-            // 1. READ
-            let mut rbuf = [0u8];
-            i2c.write_read(TCA6424_ADDR, &[OUT_PORT1], &mut rbuf)
-                .unwrap();
-            let current = rbuf[0];
-
-            // 2. MODIFY
-            let new = current & !IoExpPort1::Led.bits();
-
-            // 3. WRITE
-            i2c.write(TCA6424_ADDR, &[OUT_PORT1, new])
-        })?;
-        Ok(())
-    }
 }
 
 pub struct ExpanderInputsDriver<'a> {
@@ -574,7 +533,7 @@ async fn main(spawner: Spawner) {
     let timg0 = TimerGroup::new(peripherals.TIMG0);
     esp_rtos::start(timg0.timer0, sw_int.software_interrupt0);
 
-    //----------- Device Driver Configuration -----------//
+    // Device Driver Configurations //
     // Alarm LED Output Driver
     let mut alarm_led = Output::new(peripherals.GPIO3, Level::Low, OutputConfig::default());
 
@@ -614,11 +573,9 @@ async fn main(spawner: Spawner) {
             tk.clocktime = current_time;
         }
     });
-    println!(
-        "RTC Initialized: {}:{}",
-        rtc.read_time().unwrap().hours,
-        rtc.read_time().unwrap().minutes
-    );
+    // Print RTC Time
+    let time = rtc.read_time().unwrap();
+    println!("RTC Initialized: {:02}:{:02}", time.hours, time.minutes);
 
     // Buzzer Output PWM Driver
     // Configure PWM
@@ -649,7 +606,7 @@ async fn main(spawner: Spawner) {
         })
         .unwrap();
 
-    //----------- Task Spawning -----------//
+    // Task Spawning //
     // Display Update Task
     // No need to pass anything as I2C is already a shared resource
     spawner.spawn(display_update()).ok();
@@ -662,6 +619,7 @@ async fn main(spawner: Spawner) {
     // Variable to hold current system state
     let mut state = State::Unarmed;
 
+    // Main State Machine Loop
     loop {
         match state {
             State::Unarmed => {
@@ -673,11 +631,9 @@ async fn main(spawner: Spawner) {
                     tk.clocktime
                 });
                 rtc.write_time(time).unwrap();
-                println!(
-                    "RTC Updated: {}:{}",
-                    rtc.read_time().unwrap().hours,
-                    rtc.read_time().unwrap().minutes
-                );
+                // Print updated time
+                let time = rtc.read_time().unwrap();
+                println!("RTC Updated: {:02}:{:02}", time.hours, time.minutes);
                 state = unarmed_state().await;
             }
             State::Armed => {
@@ -716,24 +672,93 @@ async fn event_handler_loop(snooze_button: Input<'static>) {
     let mut expander_inputs = ExpanderInputsDriver::new(&SHARED_I2C);
     expander_inputs.init().unwrap();
 
+    // Threshold to consider a button press valid (debounce)
+    // window size = DEBOUBCE_THRESHOLD * BUT_POLLING_INTERVAL
+    // e.g. 6 * 5ms = 30ms debounce window
+
+    // Counters for each input
+    let mut cnt_time = 0;
+    let mut cnt_alarm = 0;
+    let mut cnt_hour = 0;
+    let mut cnt_min = 0;
+    let mut cnt_snooze = 0;
+    let mut cnt_alarm_sw = 0;
+    let mut cnt_fmt_sw = 0;
+
+    // Initialize the "Stable" state
+    let mut stable_events = expander_inputs.update_events();
+    // Manually set initial stable snooze state
+    stable_events.snooze_but = if snooze_button.is_low() {
+        Button::Pressed
+    } else {
+        Button::Released
+    };
+
+    // Event Handler Loop
     loop {
-        // Read I/O Expander Inputs
-        let mut io_events = expander_inputs.update_events();
-        // Read Snooze Button State
+        // Read Raw Inputs (Bouncing)
+        let mut raw_events = expander_inputs.update_events();
+
         if snooze_button.is_low() {
-            io_events.snooze_but = Button::Pressed;
+            raw_events.snooze_but = Button::Pressed;
         } else {
-            io_events.snooze_but = Button::Released;
+            raw_events.snooze_but = Button::Released;
         }
 
-        // Update Shared Events in Global Context
+        // Apply Debounce Logic
+        // Compare Raw vs Stable. If they differ, increment counter.
+        // If counter hits threshold, Raw becomes Stable.
+        debounce(
+            raw_events.time_but,
+            &mut stable_events.time_but,
+            &mut cnt_time,
+            DEBOUNCE_THRESHOLD,
+        );
+        debounce(
+            raw_events.alarm_but,
+            &mut stable_events.alarm_but,
+            &mut cnt_alarm,
+            DEBOUNCE_THRESHOLD,
+        );
+        debounce(
+            raw_events.hour_but,
+            &mut stable_events.hour_but,
+            &mut cnt_hour,
+            DEBOUNCE_THRESHOLD,
+        );
+        debounce(
+            raw_events.min_but,
+            &mut stable_events.min_but,
+            &mut cnt_min,
+            DEBOUNCE_THRESHOLD,
+        );
+        debounce(
+            raw_events.snooze_but,
+            &mut stable_events.snooze_but,
+            &mut cnt_snooze,
+            DEBOUNCE_THRESHOLD,
+        );
+        debounce(
+            raw_events.alarm_sw,
+            &mut stable_events.alarm_sw,
+            &mut cnt_alarm_sw,
+            DEBOUNCE_THRESHOLD,
+        );
+        debounce(
+            raw_events.fmt_sw,
+            &mut stable_events.fmt_sw,
+            &mut cnt_fmt_sw,
+            DEBOUNCE_THRESHOLD,
+        );
+
+        // Update Shared Events in Global Context with the stable state
         SHARED_SYS_EVENTS.lock(|events_ref| {
             let mut events = events_ref.borrow_mut();
-            *events = Some(io_events);
+            *events = Some(stable_events);
         });
 
         // Poll Inputs every 5 ms
-        Timer::after(Duration::from_millis(5)).await;
+        Timer::after(Duration::from_millis(BUT_POLLING_INTERVAL)).await;
     }
 }
 
@@ -743,6 +768,8 @@ async fn display_update() {
     let mut seg_driver = SevenSegmentDriver::new(&SHARED_I2C);
     // PM LED Driver
     let mut expander_leds = ExpanderLedsDriver::new(&SHARED_I2C);
+    // Digit Index for multiplexing
+    let mut digit_idx: u8 = 0;
 
     loop {
         // Read current display time from TimeKeeper
@@ -794,14 +821,15 @@ async fn display_update() {
             minutes / 10,
             minutes % 10,
         ];
-        for (digit_idx, digit_val) in digits.iter().enumerate() {
-            // Update One digit at a time
-            seg_driver
-                .display_digit(digit_idx as u8, *digit_val)
-                .unwrap();
-            // Wait 5ms. This gives a ~50Hz refresh rate (4 digits * 5ms = 20ms)
-            Timer::after(Duration::from_millis(5)).await;
-        }
+
+        // Update One digit at a time
+        seg_driver
+            .display_digit(digit_idx as u8, digits[digit_idx as usize])
+            .unwrap();
+        digit_idx = (digit_idx + 1) % 4;
+
+        // Wait 5ms. This gives a ~50Hz refresh rate (4 digits * 5ms = 20ms)
+        Timer::after(Duration::from_millis(5)).await;
     }
 }
 
@@ -811,13 +839,6 @@ async fn timekeeper_task() {
         SHARED_TIMEKEEPER.lock(|rc| {
             let mut tk = rc.borrow_mut();
             tk.tick();
-            // Debug Print Current Time
-            // Update Display Time to Clock Time
-            // tk.show_clock_time();
-            // println!(
-            //     "Time: {:02}:{:02}:{:02}",
-            //     tk.clocktime.hours, tk.clocktime.minutes, tk.clocktime.seconds
-            // );
         });
         Timer::after(Duration::from_secs(1)).await;
     }
@@ -853,7 +874,7 @@ async fn unarmed_state() -> State {
             }
         }
         // Evaluate State every 1 ms
-        Timer::after(Duration::from_millis(100)).await;
+        Timer::after(Duration::from_millis(STATE_POLLING_INTERVAL)).await;
     }
 }
 
@@ -896,88 +917,80 @@ async fn armed_state() -> State {
             }
         }
         // Evaluate State every 1 ms
-        Timer::after(Duration::from_millis(100)).await;
+        Timer::after(Duration::from_millis(STATE_POLLING_INTERVAL)).await;
     }
 }
 
 async fn set_time_state() -> State {
+    // Previous button states for edge detection
+    let mut prev_hour: Button = Button::Released;
+    let mut prev_min: Button = Button::Released;
+
     loop {
-        let events = SHARED_SYS_EVENTS.lock(|events_ref| {
-            let events = events_ref.borrow();
-            *events
-        });
+        let events = SHARED_SYS_EVENTS.lock(|events_ref| *events_ref.borrow());
+
         if let Some(event) = events {
-            match event {
-                SystemEvents {
-                    hour_but: Button::Pressed,
-                    ..
-                } => {
-                    SHARED_TIMEKEEPER.lock(|rc| {
-                        let mut tk = rc.borrow_mut();
-                        tk.increment_time_hours();
-                    });
-                }
-                SystemEvents {
-                    min_but: Button::Pressed,
-                    ..
-                } => {
-                    SHARED_TIMEKEEPER.lock(|rc| {
-                        let mut tk = rc.borrow_mut();
-                        tk.increment_time_minutes();
-                    });
-                }
-                SystemEvents {
-                    time_but: Button::Released,
-                    ..
-                } => {
-                    return State::Unarmed;
-                }
-                _ => {}
+            // Button Press Edge Detection
+            if event.hour_but == Button::Pressed && prev_hour == Button::Released {
+                SHARED_TIMEKEEPER.lock(|rc| {
+                    let mut tk = rc.borrow_mut();
+                    tk.increment_time_hours();
+                });
             }
+
+            if event.min_but == Button::Pressed && prev_min == Button::Released {
+                SHARED_TIMEKEEPER.lock(|rc| {
+                    let mut tk = rc.borrow_mut();
+                    tk.increment_time_minutes();
+                });
+            }
+
+            if event.time_but == Button::Released {
+                return State::Unarmed;
+            }
+
+            // Save current state for next loop
+            prev_hour = event.hour_but;
+            prev_min = event.min_but;
         }
-        // Poll for events every 80 ms
-        // This also acts as a debounce delay for buttons
-        Timer::after(Duration::from_millis(100)).await;
+
+        Timer::after(Duration::from_millis(STATE_POLLING_INTERVAL)).await;
     }
 }
 
 async fn set_alarm_state() -> State {
+    // Previous button states for edge detection
+    let mut prev_hour: Button = Button::Released;
+    let mut prev_min: Button = Button::Released;
+
     loop {
-        let events = SHARED_SYS_EVENTS.lock(|events_ref| {
-            let events = events_ref.borrow();
-            *events
-        });
+        let events = SHARED_SYS_EVENTS.lock(|events_ref| *events_ref.borrow());
+
         if let Some(event) = events {
-            match event {
-                SystemEvents {
-                    hour_but: Button::Pressed,
-                    ..
-                } => {
-                    SHARED_TIMEKEEPER.lock(|rc| {
-                        let mut tk = rc.borrow_mut();
-                        tk.increment_alarm_hours();
-                    });
-                }
-                SystemEvents {
-                    min_but: Button::Pressed,
-                    ..
-                } => {
-                    SHARED_TIMEKEEPER.lock(|rc| {
-                        let mut tk = rc.borrow_mut();
-                        tk.increment_alarm_minutes();
-                    });
-                }
-                SystemEvents {
-                    alarm_but: Button::Released,
-                    ..
-                } => {
-                    return State::Unarmed;
-                }
-                _ => {}
+            if event.hour_but == Button::Pressed && prev_hour == Button::Released {
+                SHARED_TIMEKEEPER.lock(|rc| {
+                    let mut tk = rc.borrow_mut();
+                    tk.increment_alarm_hours();
+                });
             }
+
+            if event.min_but == Button::Pressed && prev_min == Button::Released {
+                SHARED_TIMEKEEPER.lock(|rc| {
+                    let mut tk = rc.borrow_mut();
+                    tk.increment_alarm_minutes();
+                });
+            }
+
+            if event.alarm_but == Button::Released {
+                return State::Unarmed;
+            }
+
+            // Save current state for next loop
+            prev_hour = event.hour_but;
+            prev_min = event.min_but;
         }
-        // Evaluate State every 1 ms
-        Timer::after(Duration::from_millis(100)).await;
+
+        Timer::after(Duration::from_millis(STATE_POLLING_INTERVAL)).await;
     }
 }
 
@@ -1004,8 +1017,7 @@ async fn alarming_state() -> State {
                 _ => {}
             }
         }
-        // Evaluate State every 1 ms
-        Timer::after(Duration::from_millis(100)).await;
+        Timer::after(Duration::from_millis(STATE_POLLING_INTERVAL)).await;
     }
 }
 
@@ -1027,10 +1039,25 @@ async fn snoozing_state() -> State {
                 _ => {}
             }
         }
-        if snoozing_start_instant.elapsed() >= Duration::from_secs(5 * 60) {
+        if snoozing_start_instant.elapsed() >= Duration::from_secs(10) {
             return State::Alarming;
         }
-        // Evaluate State every 1 ms
-        Timer::after(Duration::from_millis(100)).await;
+        Timer::after(Duration::from_millis(STATE_POLLING_INTERVAL)).await;
+    }
+}
+
+// Simple Debounce Function
+// raw is the current raw input value
+// stable is the debounced stable value
+// count is the current count of consecutive different readings
+// threshold is the number of consecutive readings required to change stable value
+fn debounce<T: PartialEq + Copy>(raw: T, stable: &mut T, count: &mut u8, threshold: u8) {
+    if raw != *stable {
+        *count += 1;
+        if *count >= threshold {
+            *stable = raw;
+        }
+    } else {
+        *count = 0;
     }
 }
