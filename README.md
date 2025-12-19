@@ -13,7 +13,7 @@ If you find any code issues in the book, please [report a bug here](https://gith
 
 You are also welcome to [suggest a feature here](https://github.com/theembeddedrustacean/ser-no-std/issues/new?assignees=&labels=enhancement&projects=&template=feature_request.md&title=) so it may be considered for content in the future.
 
-## 🔗 GitHub Project Links
+## 🔗 GitHub Book Examples Project Links
 This is a list of the project links containing the example source code for the ESP32-C3 and the ESP32. This covers both RISC-V and Xtensa architechtures. Apart from that, variations among devices for the examples in the book are minor. All projects were setup using VS Code as an editor. Each branch contains the same collection of code examples accomodated for the different ESP device. Click on the link for the device you desire to work with and clone that particular branch.
 | Device   | Devkit | GitHub Links | 
 | -------- | ------ | ------------ | 
@@ -25,11 +25,15 @@ Pre-wired project templates are provided to get you started with end of chapter 
 
 Questions that are not included would use exisiting book examples as templates. These are based on the ESP32-C3 device and would need to be rewired for other devices. If you notice a template missing or would like to request one, feel free to submit a feature request.
 
+## ⏰ Alarm Clock Project Source Code
+The alarm clock full project source code is captured in the [Project Branch](https://github.com/theembeddedrustacean/ser-no-std/tree/project).
+
+
 ## 🧑‍💻 Development Options
-> ⚠️ As of January 2025, Wowki stopped supporting the `std` builder on it's web interface. While the `no_std` builder is still supported on the web interface, an alternative beginner friendly option of using DevContainers and Wokwi with VSCode is introduced. With a few clicks in GitHub, Devcontainers enable the spawning of a full environment with all the book examples in a single workspace. Still, no need for any hardware and knowledge of Devcontainers is not required.
+> ⚠️ As of early 2025, Wowki stopped supporting the Rust builder on it's web interface. As such, an alternative beginner friendly option of using DevContainers and Wokwi with VSCode is introduced. With a few clicks on GitHub, Devcontainers enable the spawning of a full environment with all the book examples in a single workspace. Still, no need for any hardware and knowledge of Devcontainers is not required.
 
 ### 1. 🌐 Development Containers (Recommended)
-This is the recommended option for beginners as it is the quickest and easiest way to get started. The full environment will be setup in your web browser with a few clicks and without leaving this repository. All you have to do is click on the green "Code" button in the upper right corder then navigate to the codespaces tab and click "create codespace on [device name]". A tab will automatically open setting up the whole environment with the example projects for you.
+This is the recommended option for beginners as it is the quickest and easiest way to get started. The full environment will be setup in your web browser with a few clicks and without leaving this repository. All you have to do is click on the green "Code" button in the upper right corner then navigate to the codespaces tab and click "create codespace on [device name]". A tab will automatically open setting up the whole environment with the example projects for you.
 
 ### 2. 🏡🛠️ Local Editor with Physical Hardware  
 If you prefer to develop locally with physical hardware, you can clone the examples locally and set them up to run on an external development board. The software required entails installing the nightly toolchain with the rust src component, modifying the target for cross-compiling in addition to installing flashing tools to download code to the external hardware. This includes the following
@@ -49,7 +53,7 @@ rustup toolchain install nightly --component rust-src
 Run the following command in a terminal window:
 
 ```shell
-rustup target add riscv32imc -unknown -none -elf
+rustup target add riscv32imc-unknown-none-elf
 ```
 
 #### d) **Install `espflash`**: 
@@ -69,12 +73,12 @@ When creating your own projects from scratch, it is highly recommended that you 
 To install `cargo-generate` run the following command:
 
 ```shell
-cargo install cargo-generate
+cargo install esp-generate
 ```
 Afterward, to generate a `no-std` template run the following command:
 
 ```shell
-cargo generate esp-rs/esp-template
+esp-generate --chip=esp32c3 your-project
 ```
 
 ### 3. 🏡🔮 Local Editor with Wokwi
@@ -91,6 +95,8 @@ Options 2 and 3 are not recommended for beginners due to the added complexity an
 
 ## 🧱 Hardware Component List (Optional)
 This is a list of the components used in the different examples in the book. Acquiring these components is **OPTIONAL** and recommended only after you are comfortable with the material. You will only need these components if you are interested in doing physical hardware development at a later time (options 2 and 3 listed in the development options section earlier).
+
+These components do not include the ones required for the project.
 
 | Component                      | Documenation                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      | Purchase Links                                                                                                                               |
 | ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
