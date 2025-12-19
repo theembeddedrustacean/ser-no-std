@@ -18,16 +18,18 @@ struct Time {
     hours: u32,
 }
 
-#[esp_hal_embassy::main]
+#[esp_rtos::main]
 async fn main(_spawner: Spawner) {
     let peripherals =
         esp_hal::init(esp_hal::Config::default());
 
     // Initalize embassy executor
     let timg0 = TimerGroup::new(peripherals.TIMG0);
-    esp_hal_embassy::init(timg0.timer0);
 
-    // This line is for Wokwi only so that the console output is formatted correctly
+    esp_rtos::start(timg0.timer0);
+
+    // This line is for Wokwi only so that the console
+    // output is formatted correctly
     esp_println::print!("\x1b[20h");
 
     // Set up a Time struct to keep track of time

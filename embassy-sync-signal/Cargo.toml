@@ -9,10 +9,11 @@ license = "MIT OR Apache-2.0"
 
 [dependencies]
 esp-hal = { workspace = true }
+esp-bootloader-esp-idf = { workspace = true }
 esp-backtrace = { workspace = true }
 esp-println = { workspace = true }
 log = { workspace = true }
-esp-hal-embassy = { workspace = true }
+esp-rtos = { workspace = true }
 embassy-executor = { workspace = true }
 embassy-futures = { workspace = true }
 embassy-sync = { workspace = true }

@@ -9,18 +9,16 @@ Programming GPIO - Blinky Application Example
 use esp_backtrace as _;
 use esp_hal::{
     delay::Delay,
-    gpio::{
-        DriveMode, DriveStrength, Level, Output,
-        OutputConfig, Pull,
-    },
+    gpio::{DriveMode, DriveStrength, Level, Output, OutputConfig, Pull},
     main,
 };
+
+esp_bootloader_esp_idf::esp_app_desc!();
 
 #[main]
 fn main() -> ! {
     // Take the peripherals
-    let peripherals =
-        esp_hal::init(esp_hal::Config::default());
+    let peripherals = esp_hal::init(esp_hal::Config::default());
 
     // Create a delay handle
     let delay = Delay::new();
@@ -32,11 +30,7 @@ fn main() -> ! {
         .with_pull(Pull::None);
 
     // Create output pin
-    let mut led_pin = Output::new(
-        peripherals.GPIO0,
-        Level::Low,
-        led_pin_conf,
-    );
+    let mut led_pin = Output::new(peripherals.GPIO0, Level::Low, led_pin_conf);
 
     loop {
         // Turn on LED

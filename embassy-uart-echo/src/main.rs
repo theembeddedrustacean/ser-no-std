@@ -77,18 +77,19 @@ async fn uart_reader(mut rx: UartRx<'static, Async>) {
     }
 }
 
-#[esp_hal_embassy::main]
+#[esp_rtos::main]
 async fn main(spawner: Spawner) {
     let peripherals =
         esp_hal::init(esp_hal::Config::default());
 
     // Initalize embassy executor
     let timg0 = TimerGroup::new(peripherals.TIMG0);
-    esp_hal_embassy::init(timg0.timer0);
+
+    esp_rtos::start(timg0.timer0);
 
     // Instantiate GPIO pins for UART
     let (tx_pin, rx_pin) =
-        (peripherals.GPIO21, peripherals.GPIO20);
+        (peripherals.GPIO3, peripherals.GPIO1);
 
     // Initialize and configure UART0
     let config = Config::default().with_rx(

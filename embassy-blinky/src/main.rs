@@ -14,7 +14,9 @@ use esp_hal::{
     timer::timg::TimerGroup,
 };
 
-#[esp_hal_embassy::main]
+esp_bootloader_esp_idf::esp_app_desc!();
+
+#[esp_rtos::main]
 async fn main(_spawner: Spawner) {
     // Take peripherals & Configure System Clocks
     let peripherals =
@@ -22,7 +24,8 @@ async fn main(_spawner: Spawner) {
 
     // Initalize embassy executor
     let timg0 = TimerGroup::new(peripherals.TIMG0);
-    esp_hal_embassy::init(timg0.timer0);
+
+    esp_rtos::start(timg0.timer0);
 
     // Setup and Configure LED Output Pin
     let led_config = OutputConfig::default();

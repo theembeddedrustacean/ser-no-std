@@ -36,14 +36,14 @@ async fn async_task_two() {
     }
 }
 
-#[esp_hal_embassy::main]
+#[esp_rtos::main]
 async fn main(spawner: Spawner) {
     // Initialize and create handle for devicer peripherals
     let peripherals =
         esp_hal::init(esp_hal::Config::default());
     // Initalize embassy executor
     let timg0 = TimerGroup::new(peripherals.TIMG0);
-    esp_hal_embassy::init(timg0.timer0);
+    esp_rtos::start(timg0.timer0);
     // Spawn async blinking task
     spawner.spawn(async_task_one()).unwrap();
     spawner.spawn(async_task_two()).unwrap();

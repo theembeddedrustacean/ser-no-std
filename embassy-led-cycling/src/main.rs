@@ -28,7 +28,7 @@ type ButtonType =
     Mutex<CriticalSectionRawMutex, Option<Input<'static>>>;
 static BUTTON: ButtonType = Mutex::new(None);
 
-#[esp_hal_embassy::main]
+#[esp_rtos::main]
 async fn main(spawner: Spawner) {
     // Take Peripherals
     let peripherals =
@@ -36,7 +36,7 @@ async fn main(spawner: Spawner) {
 
     // Initalize embassy executor
     let timg0 = TimerGroup::new(peripherals.TIMG0);
-    esp_hal_embassy::init(timg0.timer0);
+    esp_rtos::start(timg0.timer0);
 
     // Configure Delay Button to Pull Up input
     let del_but_config =
