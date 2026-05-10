@@ -4,18 +4,18 @@ members = ["alarm-clock"]
 
 
 [workspace.dependencies]
-esp-rtos = { version = "0.2.0", features = ["esp32c3", "log-04", "embassy"] }
-esp-bootloader-esp-idf = { version = "0.4.0", features = ["esp32c3"] }
-esp-backtrace = { version = "0.18.0", features = [
+esp-rtos = { version = "0.3.0", features = ["esp32c3", "log-04", "embassy"] }
+esp-bootloader-esp-idf = { version = "0.5.0", features = ["esp32c3"] }
+esp-backtrace = { version = "0.19.0", features = [
     "esp32c3",
     "panic-handler",
     "println",
 ] }
 esp-hal = { version = "1.0.0", features = ["esp32c3", "log-04", "unstable"] }
-esp-println = { version = "0.16.0", features = ["esp32c3", "log-04"] }
-embassy-executor = { version = "0.9.1" }
+esp-println = { version = "0.17.0", features = ["esp32c3", "log-04"] }
+embassy-executor = { version = "0.10.0" }
 embassy-time = "0.5.0"
-embassy-sync = "0.7.2"
+embassy-sync = "0.8.0"
 
 [profile.dev]
 # Rust debug is too slow. 

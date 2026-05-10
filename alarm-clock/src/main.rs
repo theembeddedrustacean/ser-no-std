@@ -609,12 +609,12 @@ async fn main(spawner: Spawner) {
     // Task Spawning //
     // Display Update Task
     // No need to pass anything as I2C is already a shared resource
-    spawner.spawn(display_update()).ok();
+    spawner.spawn(display_update().unwrap());
     // Timekeeper Task
     // No need to pass anything as TimeKeeper struct is already a shared resource
-    spawner.spawn(timekeeper_task()).ok();
+    spawner.spawn(timekeeper_task().unwrap());
     // Event Polling Task
-    spawner.spawn(event_handler_loop(snooze_button)).ok();
+    spawner.spawn(event_handler_loop(snooze_button).unwrap());
 
     // Variable to hold current system state
     let mut state = State::Unarmed;
