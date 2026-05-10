@@ -115,6 +115,6 @@ async fn main(spawner: Spawner) {
     let (rx, tx) = uart0.split();
 
     // Spawn Tx and Rx tasks
-    spawner.spawn(uart_reader(rx)).ok();
-    spawner.spawn(uart_writer(tx)).ok();
+    spawner.spawn(uart_reader(rx).unwrap());
+    spawner.spawn(uart_writer(tx).unwrap());
 }

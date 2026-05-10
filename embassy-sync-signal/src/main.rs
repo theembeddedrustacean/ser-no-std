@@ -40,7 +40,7 @@ async fn main(spawner: Spawner) {
         sw_int.software_interrupt0,
     );
     // Spawn async blinking task
-    spawner.spawn(async_task()).unwrap();
+    spawner.spawn(async_task().unwrap());
 
     loop {
         let val = SHARED.wait().await;

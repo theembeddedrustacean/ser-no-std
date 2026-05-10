@@ -113,7 +113,7 @@ async fn main(spawner: Spawner) {
     ];
 
     // Spawn Button Press Task
-    spawner.spawn(press_button(&BUTTON)).unwrap();
+    spawner.spawn(press_button(&BUTTON).unwrap());
 
     // This line is for Wokwi only so that the console output is formatted correctly
     esp_println::print!("\x1b[20h");

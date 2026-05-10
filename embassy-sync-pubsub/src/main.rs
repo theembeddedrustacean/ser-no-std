@@ -56,8 +56,8 @@ async fn main(spawner: Spawner) {
         sw_int.software_interrupt0,
     );
     // Spawn async blinking task
-    spawner.spawn(async_task_one()).unwrap();
-    spawner.spawn(async_task_two()).unwrap();
+    spawner.spawn(async_task_one().unwrap());
+    spawner.spawn(async_task_two().unwrap());
 
     let mut sub = SHARED.subscriber().unwrap();
 

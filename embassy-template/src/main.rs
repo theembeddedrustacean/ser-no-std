@@ -37,7 +37,7 @@ async fn main(spawner: Spawner) {
         sw_int.software_interrupt0,
     );
 
-    spawner.spawn(embassy_task()).unwrap();
+    spawner.spawn(embassy_task().unwrap());
 
     loop {
         // Main loop code
