@@ -17,6 +17,7 @@ use esp_hal::{
         Input, InputConfig, Level, Output, OutputConfig,
         Pull,
     },
+    interrupt::software::SoftwareInterruptControl,
     timer::timg::TimerGroup,
 };
 use portable_atomic::AtomicU32;
@@ -36,7 +37,13 @@ async fn main(spawner: Spawner) {
 
     // Initalize embassy executor
     let timg0 = TimerGroup::new(peripherals.TIMG0);
-    esp_rtos::start(timg0.timer0);
+    let sw_int = SoftwareInterruptControl::new(
+        peripherals.SW_INTERRUPT,
+    );
+    esp_rtos::start(
+        timg0.timer0,
+        sw_int.software_interrupt0,
+    );
 
     // Configure Delay Button to Pull Up input
     let del_but_config =
@@ -105,7 +112,7 @@ async fn main(spawner: Spawner) {
     ];
 
     // Spawn Button Press Task
-    spawner.spawn(press_button(&BUTTON)).unwrap();
+    spawner.spawn(press_button(&BUTTON).unwrap());
 
     // This line is for Wokwi only so that the console
     // output is formatted correctly

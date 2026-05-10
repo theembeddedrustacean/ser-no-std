@@ -9,7 +9,10 @@ The Embassy Framework - Real-time Timer Application Example
 use embassy_executor::Spawner;
 use embassy_time::{Duration, Timer};
 use esp_backtrace as _;
-use esp_hal::timer::timg::TimerGroup;
+use esp_hal::{
+    interrupt::software::SoftwareInterruptControl,
+    timer::timg::TimerGroup,
+};
 use esp_println::println;
 
 struct Time {
@@ -26,7 +29,13 @@ async fn main(_spawner: Spawner) {
     // Initalize embassy executor
     let timg0 = TimerGroup::new(peripherals.TIMG0);
 
-    esp_rtos::start(timg0.timer0);
+    let sw_int = SoftwareInterruptControl::new(
+        peripherals.SW_INTERRUPT,
+    );
+    esp_rtos::start(
+        timg0.timer0,
+        sw_int.software_interrupt0,
+    );
 
     // This line is for Wokwi only so that the console
     // output is formatted correctly

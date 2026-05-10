@@ -13,6 +13,7 @@ use embassy_sync::{
 };
 use esp_backtrace as _;
 use esp_hal::{
+    interrupt::software::SoftwareInterruptControl,
     timer::timg::TimerGroup,
     uart::{
         AtCmdConfig, Config, RxConfig, Uart, UartRx,
@@ -85,7 +86,13 @@ async fn main(spawner: Spawner) {
     // Initalize embassy executor
     let timg0 = TimerGroup::new(peripherals.TIMG0);
 
-    esp_rtos::start(timg0.timer0);
+    let sw_int = SoftwareInterruptControl::new(
+        peripherals.SW_INTERRUPT,
+    );
+    esp_rtos::start(
+        timg0.timer0,
+        sw_int.software_interrupt0,
+    );
 
     // Instantiate GPIO pins for UART
     let (tx_pin, rx_pin) =
@@ -110,6 +117,6 @@ async fn main(spawner: Spawner) {
     let (rx, tx) = uart0.split();
 
     // Spawn Tx and Rx tasks
-    spawner.spawn(uart_reader(rx)).ok();
-    spawner.spawn(uart_writer(tx)).ok();
+    spawner.spawn(uart_reader(rx).unwrap());
+    spawner.spawn(uart_writer(tx).unwrap());
 }

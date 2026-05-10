@@ -6,7 +6,10 @@ use embassy_sync::blocking_mutex::raw::CriticalSectionRawMutex;
 use embassy_sync::channel::Channel;
 use embassy_time::{Duration, Timer};
 use esp_backtrace as _;
-use esp_hal::timer::timg::TimerGroup;
+use esp_hal::{
+    interrupt::software::SoftwareInterruptControl,
+    timer::timg::TimerGroup,
+};
 use esp_println::println;
 
 //Declare a channel of 2 u32s
@@ -36,10 +39,16 @@ async fn main(spawner: Spawner) {
         esp_hal::init(esp_hal::Config::default());
     // Initalize embassy executor
     let timg0 = TimerGroup::new(peripherals.TIMG0);
-    esp_rtos::start(timg0.timer0);
+    let sw_int = SoftwareInterruptControl::new(
+        peripherals.SW_INTERRUPT,
+    );
+    esp_rtos::start(
+        timg0.timer0,
+        sw_int.software_interrupt0,
+    );
     // Spawn async blinking task
-    spawner.spawn(async_task_one()).unwrap();
-    spawner.spawn(async_task_two()).unwrap();
+    spawner.spawn(async_task_one().unwrap());
+    spawner.spawn(async_task_two().unwrap());
 
     loop {
         let val = SHARED.receive().await;

@@ -4,7 +4,10 @@
 use embassy_executor::Spawner;
 use embassy_time::{Duration, Timer};
 use esp_backtrace as _;
-use esp_hal::timer::timg::TimerGroup;
+use esp_hal::{
+    interrupt::software::SoftwareInterruptControl,
+    timer::timg::TimerGroup,
+};
 
 #[embassy_executor::task]
 async fn embassy_task() {
@@ -24,9 +27,15 @@ async fn main(spawner: Spawner) {
 
     // Initalize embassy executor
     let timg0 = TimerGroup::new(peripherals.TIMG0);
-    esp_rtos::start(timg0.timer0);
+    let sw_int = SoftwareInterruptControl::new(
+        peripherals.SW_INTERRUPT,
+    );
+    esp_rtos::start(
+        timg0.timer0,
+        sw_int.software_interrupt0,
+    );
 
-    spawner.spawn(embassy_task()).unwrap();
+    spawner.spawn(embassy_task().unwrap());
 
     loop {
         // Main loop code

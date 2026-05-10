@@ -11,6 +11,7 @@ use embassy_time::{Duration, Timer};
 use esp_backtrace as _;
 use esp_hal::{
     gpio::{Level, Output, OutputConfig},
+    interrupt::software::SoftwareInterruptControl,
     timer::timg::TimerGroup,
 };
 
@@ -24,8 +25,14 @@ async fn main(_spawner: Spawner) {
 
     // Initalize embassy executor
     let timg0 = TimerGroup::new(peripherals.TIMG0);
+    let sw_int = SoftwareInterruptControl::new(
+        peripherals.SW_INTERRUPT,
+    );
 
-    esp_rtos::start(timg0.timer0);
+    esp_rtos::start(
+        timg0.timer0,
+        sw_int.software_interrupt0,
+    );
 
     // Setup and Configure LED Output Pin
     let led_config = OutputConfig::default();
