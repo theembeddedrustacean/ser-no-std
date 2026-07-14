@@ -24,6 +24,10 @@ members = [
     "temperature-sensing",
     "timer-based-delay",
     "voltmeter",
+    "connecting-wifi",
+    "simple-http-server",
+    "simple-http-client",
+    "synchronizing-system-time",
 ]
 
 
@@ -36,12 +40,30 @@ esp-backtrace = { version = "0.19.0", features = [
 esp-hal = { version = "1.1.1", features = ["esp32c3", "unstable"] }
 esp-println = { version = "0.17.0", features = ["esp32c3"] }
 esp-bootloader-esp-idf = { version = "0.5.0", features = ["esp32c3"] }
-esp-rtos = { version = "0.3.0", features = ["esp32c3", "embassy", "log-04"] }
+esp-rtos = { version = "0.3.0", features = [
+    "esp32c3",
+    "esp-radio",
+    "esp-alloc",
+    "embassy",
+] }
+esp-radio = { version = "1.0.0-beta.0", features = [
+    "esp32c3",
+    "wifi",
+    "esp-alloc",
+] }
+esp-alloc = { version = "0.10.0" }
 log = { version = "0.4.20" }
 embassy-executor = { version = "0.10.0" }
 embassy-futures = "0.1.1"
 embassy-sync = "0.8.0"
 embassy-time = "0.5.0"
+embassy-net = { version = "0.9.1", features = [
+    "dhcpv4",
+    "medium-ethernet",
+    "tcp",
+    "udp",
+    "dns",
+] }
 embedded-hal-async = "1.0.0"
 embedded-io-async = "0.7.0"
 static_cell = "2.1.0"
@@ -51,6 +73,9 @@ heapless = "0.9.2"
 nobcd = "0.2.0"
 libm = "0.2.8"
 fugit = "0.4.0"
+reqwless = { version = "0.14.0", default-features = false }
+sntpc = { version = "0.11", default-features = false }
+sntpc-net-embassy = { version = "0.11", default-features = false }
 
 [profile.dev]
 # Rust debug is too slow. 

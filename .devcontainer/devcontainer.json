@@ -40,6 +40,7 @@
   },
   "forwardPorts": [
     8000,
+    9080,
     3333
   ]
   // "workspaceMount": "source=${localWorkspaceFolder},target=/home/esp/{{ crate_name }},type=bind,consistency=cached",
